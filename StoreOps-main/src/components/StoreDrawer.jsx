@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { X, Phone, MessageCircle, Mail, MapPin, Clock, Building2, Users, Copy, Check } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { X, Phone, MessageCircle, Mail, MapPin, Clock, Building2, Users, Copy, Check, Store, UserRound, ExternalLink } from 'lucide-react'
 import StatusBadge from './StatusBadge'
 import { isBeta, hasTaxa, getFornecedor } from '../utils/storeMappings'
 
@@ -75,6 +75,116 @@ function isDuplicate(a, b) {
   if (!a || !b) return false
   const normalize = s => s.toLowerCase().replace(/[^a-z0-9]/g, '')
   return normalize(a) === normalize(b)
+}
+
+function EmailRow({ label, email, icon: Icon }) {
+  const [copied, setCopied] = useState(false)
+
+  if (!email) {
+    return (
+      <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-slate-50">
+        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+          <Icon className="w-4 h-4 text-slate-300" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[11px] font-medium text-slate-400">{label}</p>
+          <p className="text-xs text-slate-300 italic">Não cadastrado</p>
+        </div>
+      </div>
+    )
+  }
+
+  function handleCopy() {
+    navigator.clipboard.writeText(email).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
+  return (
+    <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors">
+      <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
+        <Icon className="w-4 h-4 text-violet-500" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-[11px] font-medium text-slate-400">{label}</p>
+        <p className="text-sm text-slate-800 font-semibold truncate">{email}</p>
+      </div>
+      <button
+        onClick={handleCopy}
+        className="p-1.5 rounded-md hover:bg-slate-100 transition-colors shrink-0"
+        title="Copiar e-mail"
+      >
+        {copied ? (
+          <Check className="w-4 h-4 text-emerald-500" />
+        ) : (
+          <Copy className="w-4 h-4 text-slate-400" />
+        )}
+      </button>
+    </div>
+  )
+}
+
+function EmailPopover({ loja }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  const emailLoja = loja.email_loja || null
+  const emailGerente = loja.email_gerente || null
+  const hasAny = emailLoja || emailGerente
+
+  useEffect(() => {
+    if (!open) return
+    function handleClickOutside(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [open])
+
+  const allEmails = [emailLoja, emailGerente].filter(Boolean).join(',')
+
+  return (
+    <div className="relative flex-1" ref={ref}>
+      <button
+        onClick={() => setOpen(prev => !prev)}
+        className={`w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
+          open
+            ? 'bg-violet-100 text-violet-800'
+            : 'bg-violet-50 text-violet-700 hover:bg-violet-100'
+        }`}
+      >
+        <Mail className="w-3.5 h-3.5" />
+        E-mail
+      </button>
+
+      {open && (
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 bg-white rounded-xl border border-slate-200 shadow-xl z-50 overflow-hidden animate-fade-in">
+          <div className="px-3 pt-3 pb-2">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.12em]">E-mails da Loja</p>
+          </div>
+
+          <div className="px-1.5 pb-2 space-y-0.5">
+            <EmailRow label="E-mail da Loja" email={emailLoja} icon={Store} />
+            <EmailRow label="E-mail do Gerente" email={emailGerente} icon={UserRound} />
+          </div>
+
+          {hasAny && (
+            <div className="border-t border-slate-100 px-3 py-2.5">
+              <a
+                href={`mailto:${allEmails}`}
+                className="flex items-center justify-center gap-1.5 w-full px-3 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium transition-colors"
+                onClick={() => setOpen(false)}
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                Abrir no cliente de e-mail
+              </a>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default function StoreDrawer({ loja, onClose }) {
@@ -159,13 +269,7 @@ export default function StoreDrawer({ loja, onClose }) {
                 Ligar
               </span>
             )}
-            <a
-              href="mailto:"
-              className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-violet-50 text-violet-700 text-xs font-semibold hover:bg-violet-100 transition-colors"
-            >
-              <Mail className="w-3.5 h-3.5" />
-              E-mail
-            </a>
+            <EmailPopover loja={loja} />
           </div>
         </div>
 
