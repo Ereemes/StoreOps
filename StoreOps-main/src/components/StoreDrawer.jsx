@@ -102,17 +102,17 @@ function EmailRow({ label, email, icon: Icon }) {
   }
 
   return (
-    <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors">
+    <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors">
       <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
         <Icon className="w-4 h-4 text-violet-500" />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-[11px] font-medium text-slate-400">{label}</p>
-        <p className="text-sm text-slate-800 font-semibold truncate">{email}</p>
+        <p className="text-xs text-slate-800 font-semibold break-all leading-relaxed">{email}</p>
       </div>
       <button
         onClick={handleCopy}
-        className="p-1.5 rounded-md hover:bg-slate-100 transition-colors shrink-0"
+        className="p-2 rounded-lg hover:bg-slate-100 transition-colors shrink-0"
         title="Copiar e-mail"
       >
         {copied ? (
@@ -159,12 +159,12 @@ function EmailPopover({ loja }) {
       </button>
 
       {open && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 bg-white rounded-xl border border-slate-200 shadow-xl z-50 overflow-hidden animate-fade-in">
-          <div className="px-3 pt-3 pb-2">
+        <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-xl border border-slate-200 shadow-xl z-50 overflow-hidden animate-fade-in">
+          <div className="px-4 pt-3 pb-2">
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.12em]">E-mails da Loja</p>
           </div>
 
-          <div className="px-1.5 pb-2 space-y-0.5">
+          <div className="px-2 pb-2 space-y-1">
             <EmailRow label="E-mail da Loja" email={emailLoja} icon={Store} />
             <EmailRow label="E-mail do Gerente" email={emailGerente} icon={UserRound} />
           </div>
