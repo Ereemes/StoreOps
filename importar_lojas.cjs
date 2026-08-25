@@ -26,6 +26,8 @@ const COLUMN_MAP = {
   'Diretor': 'diretor',
   'Telefone Loja': 'telefone',
   'WhatsApp': 'whatsapp',
+  'E-mail Loja': 'email_loja',
+  'E-mail Gerente': 'email_gerente',
   'Hora Abertura': 'hora_abertura',
   'Hora Fechamento': 'hora_fechamento',
 };

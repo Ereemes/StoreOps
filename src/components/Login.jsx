@@ -27,13 +27,13 @@ export default function Login() {
     setLoading(false)
 
     if (authError) {
-      if (authError.message === 'Invalid login credentials') {
-        setError('E-mail ou senha incorretos.')
-      } else if (authError.message === 'Email not confirmed') {
-        setError('E-mail ainda não confirmado. Verifique sua caixa de entrada.')
-      } else {
-        setError(authError.message)
+      const knownErrors = {
+        'Invalid login credentials': 'E-mail ou senha incorretos.',
+        'Email not confirmed': 'E-mail ainda não confirmado. Verifique sua caixa de entrada.',
+        'Too many requests': 'Muitas tentativas. Aguarde alguns minutos.',
+        'User not found': 'E-mail ou senha incorretos.',
       }
+      setError(knownErrors[authError.message] || 'Erro ao autenticar. Tente novamente.')
     }
   }
 
