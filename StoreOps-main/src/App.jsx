@@ -75,14 +75,20 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    if (!user) {
+      setLojas([])
+      setLoading(false)
+      return
+    }
     async function fetchLojas() {
+      setLoading(true)
       const { data, error } = await supabase.from('lojas').select('*')
       if (error) console.error('Erro ao buscar lojas:', error.message)
       else setLojas(deduplicateAndSort(data))
       setLoading(false)
     }
     fetchLojas()
-  }, [])
+  }, [user])
 
   const options = useMemo(() => {
     const collect = (field) => [...new Set(lojas.map(l => l[field]).filter(Boolean))].sort()
