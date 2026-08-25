@@ -91,8 +91,8 @@ export default function App() {
   }, [user])
 
   const options = useMemo(() => {
-    const collect = (field) => [...new Set(lojas.map(l => l[field]).filter(Boolean))].sort()
-    return { uf: collect('uf'), regional: collect('regional'), diretor: collect('diretor'), unidade_negocio: collect('unidade_negocio') }
+    const collect = (field, exclude = []) => [...new Set(lojas.map(l => l[field]).filter(v => v && !exclude.includes(v)))].sort()
+    return { uf: collect('uf'), regional: collect('regional'), diretor: collect('diretor'), unidade_negocio: collect('unidade_negocio', ['Geral']) }
   }, [lojas])
 
   const tabCounts = useMemo(() => {
