@@ -170,14 +170,24 @@ function EmailPopover({ loja }) {
           </div>
 
           {hasAny && (
-            <div className="border-t border-slate-100 px-3 py-2.5">
+            <div className="border-t border-slate-100 px-3 py-2.5 flex gap-2">
+              <a
+                href={`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(allEmails)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium transition-colors"
+                onClick={() => setOpen(false)}
+              >
+                <Mail className="w-3.5 h-3.5" />
+                Gmail
+              </a>
               <a
                 href={`mailto:${allEmails}`}
-                className="flex items-center justify-center gap-1.5 w-full px-3 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium transition-colors"
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-medium transition-colors"
                 onClick={() => setOpen(false)}
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                Abrir no cliente de e-mail
+                Outlook
               </a>
             </div>
           )}
