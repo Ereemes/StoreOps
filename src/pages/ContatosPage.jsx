@@ -25,7 +25,7 @@ const REGIONAIS = [
   { nome: 'PETERSON', telefone: '(12) 98143-4435', diretor: 'ERICSON', lojas: 5 },
   { nome: 'RODRIGO', telefone: '(16) 97400-1375', diretor: 'ERICSON', lojas: 7 },
   { nome: 'ROGERS', telefone: '(17) 99732-7460', diretor: 'ERICSON', lojas: 7 },
-  { nome: 'SEWERYNO', telefone: '', diretor: '', lojas: 9 },
+  { nome: 'SEWERYNO', telefone: '(71) 8401-0333', diretor: '', lojas: 9 },
   { nome: 'SUILA', telefone: '', diretor: 'SONIA', lojas: 2 },
   { nome: 'THIAGO', telefone: '(24) 99916-5013', diretor: 'ERICSON', lojas: 15 },
   { nome: 'VIVIANE', telefone: '', diretor: 'SONIA', lojas: 4 },

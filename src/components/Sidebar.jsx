@@ -1,9 +1,8 @@
 import { NavLink } from 'react-router-dom'
-import { Store, Activity, Tv, Phone } from 'lucide-react'
+import { Store, Tv, Phone } from 'lucide-react'
 
 const MODULES = [
   { to: '/lojas', label: 'Lojas', icon: Store },
-  { to: '/monitoramento', label: 'Monitoramento', icon: Activity },
   { to: '/contatos', label: 'Contatos', icon: Phone },
 ]
 

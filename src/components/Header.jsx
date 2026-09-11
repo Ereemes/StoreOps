@@ -4,7 +4,6 @@ import Logo from './Logo'
 
 const MODULE_LABELS = {
   '/lojas': 'Lojas',
-  '/monitoramento': 'Monitoramento',
   '/contatos': 'Contatos',
 }
 

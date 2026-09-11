@@ -81,7 +81,6 @@ export default function App() {
         <Route element={<AppLayout user={user} />}>
           <Route path="/" element={<Navigate to="/lojas" replace />} />
           <Route path="/lojas" element={<LojasPage />} />
-          <Route path="/monitoramento" element={<MonitoramentoPage />} />
           <Route path="/contatos" element={<ContatosPage />} />
           <Route path="*" element={<Navigate to="/lojas" replace />} />
         </Route>
