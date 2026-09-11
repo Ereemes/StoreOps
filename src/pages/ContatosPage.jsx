@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Search, Phone, User, Users, ChevronDown, ChevronUp } from 'lucide-react'
 
 const DIRETORES = [
@@ -40,7 +41,7 @@ function formatWhatsAppUrl(telefone) {
 function ContactCard({ nome, telefone, role, extra }) {
   const waUrl = formatWhatsAppUrl(telefone)
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-slate-300 transition-all">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm hover:shadow-md dark:shadow-none hover:border-slate-300 dark:hover:border-slate-700 transition-all">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0 ${
@@ -49,9 +50,9 @@ function ContactCard({ nome, telefone, role, extra }) {
             {nome.split(' ').map(w => w[0]).join('').substring(0, 2)}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-slate-900 truncate">{nome}</p>
-            <p className="text-xs text-slate-500">{role === 'diretor' ? 'Diretor' : 'Regional'}</p>
-            {extra && <p className="text-[11px] text-slate-400 mt-0.5">{extra}</p>}
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">{nome}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">{role === 'diretor' ? 'Diretor' : 'Regional'}</p>
+            {extra && <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">{extra}</p>}
           </div>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
@@ -59,7 +60,7 @@ function ContactCard({ nome, telefone, role, extra }) {
             <>
               <a
                 href={`tel:${telefone}`}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium rounded-lg transition-colors"
               >
                 <Phone className="w-3.5 h-3.5" />
                 {telefone}
@@ -69,7 +70,7 @@ function ContactCard({ nome, telefone, role, extra }) {
                   href={waUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center w-8 h-8 bg-green-50 hover:bg-green-100 text-green-600 rounded-lg transition-colors"
+                  className="inline-flex items-center justify-center w-8 h-8 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40 text-green-600 dark:text-green-400 rounded-lg transition-colors"
                   title="WhatsApp"
                 >
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -79,7 +80,7 @@ function ContactCard({ nome, telefone, role, extra }) {
               )}
             </>
           ) : (
-            <span className="text-xs text-slate-400 italic px-3 py-1.5">Sem telefone</span>
+            <span className="text-xs text-slate-400 dark:text-slate-600 italic px-3 py-1.5">Sem telefone</span>
           )}
         </div>
       </div>
@@ -88,9 +89,15 @@ function ContactCard({ nome, telefone, role, extra }) {
 }
 
 export default function ContatosPage() {
-  const [search, setSearch] = useState('')
+  const [searchParams] = useSearchParams()
+  const [search, setSearch] = useState(searchParams.get('q') || '')
   const [showDiretores, setShowDiretores] = useState(true)
   const [filterDiretor, setFilterDiretor] = useState('')
+
+  useEffect(() => {
+    const q = searchParams.get('q')
+    if (q) setSearch(q)
+  }, [searchParams])
 
   const diretoresUnicos = useMemo(() => [...new Set(REGIONAIS.map(r => r.diretor).filter(Boolean))].sort(), [])
 
@@ -118,33 +125,33 @@ export default function ContatosPage() {
     <>
       <div className="flex items-baseline justify-between mb-5">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Contatos</h2>
-          <p className="text-sm text-slate-400 mt-0.5">Telefones dos regionais e diretores</p>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Contatos</h2>
+          <p className="text-sm text-slate-400 dark:text-slate-500 mt-0.5">Telefones dos regionais e diretores</p>
         </div>
-        <span className="text-sm text-slate-500">
-          <span className="text-lg font-bold text-slate-800">{REGIONAIS.length}</span>
+        <span className="text-sm text-slate-500 dark:text-slate-400">
+          <span className="text-lg font-bold text-slate-800 dark:text-white">{REGIONAIS.length}</span>
           <span className="ml-1">regionais</span>
-          <span className="text-slate-300 mx-2">·</span>
-          <span className="text-lg font-bold text-slate-800">{DIRETORES.length}</span>
+          <span className="text-slate-300 dark:text-slate-600 mx-2">&middot;</span>
+          <span className="text-lg font-bold text-slate-800 dark:text-white">{DIRETORES.length}</span>
           <span className="ml-1">diretores</span>
         </span>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
           <input
             type="text"
             placeholder="Buscar por nome ou telefone..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full h-9 pl-10 pr-4 bg-white border border-slate-200 rounded-lg text-sm placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-shadow"
+            className="w-full h-9 pl-10 pr-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 shadow-sm dark:shadow-none focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-shadow"
           />
         </div>
         <select
           value={filterDiretor}
           onChange={e => setFilterDiretor(e.target.value)}
-          className="h-9 w-48 px-3 text-xs font-medium border rounded-lg cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 appearance-none bg-[length:16px] bg-[right_8px_center] bg-no-repeat bg-white border-slate-200 text-slate-700 hover:border-slate-300 shadow-sm"
+          className="h-9 w-48 px-3 text-xs font-medium border rounded-lg cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 appearance-none bg-[length:16px] bg-[right_8px_center] bg-no-repeat bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600 shadow-sm dark:shadow-none"
         >
           <option value="">Todos os diretores</option>
           {diretoresUnicos.map(d => <option key={d} value={d}>{d}</option>)}
@@ -153,7 +160,7 @@ export default function ContatosPage() {
 
       <button
         onClick={() => setShowDiretores(prev => !prev)}
-        className="flex items-center gap-2 mb-3 text-xs font-bold text-slate-500 uppercase tracking-wider hover:text-slate-700 transition-colors"
+        className="flex items-center gap-2 mb-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
       >
         <User className="w-4 h-4" />
         Diretores ({filteredDiretores.length})
@@ -169,8 +176,8 @@ export default function ContatosPage() {
       )}
 
       <div className="flex items-center gap-2 mb-3">
-        <Users className="w-4 h-4 text-slate-500" />
-        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+        <Users className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
           Regionais ({filteredRegionais.length})
         </span>
       </div>
@@ -189,7 +196,7 @@ export default function ContatosPage() {
 
       {filteredRegionais.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-slate-400 text-sm">Nenhum regional encontrado.</p>
+          <p className="text-slate-400 dark:text-slate-500 text-sm">Nenhum regional encontrado.</p>
         </div>
       )}
     </>

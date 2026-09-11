@@ -1,4 +1,4 @@
-import { LogOut } from 'lucide-react'
+import { LogOut, Moon, Sun } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import Logo from './Logo'
 
@@ -7,29 +7,35 @@ const MODULE_LABELS = {
   '/contatos': 'Contatos',
 }
 
-export default function Header({ user, onLogout }) {
+export default function Header({ user, onLogout, dark, onToggleTheme }) {
   const location = useLocation()
   const currentModule = MODULE_LABELS[location.pathname] || 'Lojas'
 
   return (
-    <header className="h-16 flex items-center justify-between px-6 bg-slate-900 border-b border-slate-800">
-      <div className="flex items-center gap-3">
-        <Logo size={38} />
-        <div>
-          <span className="text-base font-bold text-white tracking-tight">Store</span>
-          <span className="text-base font-bold text-red-400 tracking-tight"> Ops</span>
-        </div>
+    <header className="h-16 flex items-center justify-between px-6 bg-slate-900 dark:bg-slate-950 border-b border-slate-800 dark:border-slate-800/50 shrink-0">
+      <div className="flex items-center">
+        <Logo size={36} showText />
       </div>
 
       <div className="hidden sm:flex items-center text-sm">
         <span className="text-slate-500">Grupo Oscar</span>
-        <span className="text-slate-600 mx-2">·</span>
+        <span className="text-slate-600 mx-2">&middot;</span>
         <span className="text-slate-500">TI</span>
-        <span className="text-slate-600 mx-2">·</span>
+        <span className="text-slate-600 mx-2">&middot;</span>
         <span className="font-semibold text-white">{currentModule}</span>
       </div>
 
       <div className="flex items-center gap-3">
+        <button
+          onClick={onToggleTheme}
+          className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-slate-800 transition-all"
+          title={dark ? 'Tema claro' : 'Tema escuro'}
+        >
+          {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        </button>
+
+        <div className="h-6 w-px bg-slate-700" />
+
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center text-[11px] font-bold text-white shadow-sm">
             {user?.iniciais || 'CT'}

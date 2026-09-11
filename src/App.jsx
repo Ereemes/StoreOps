@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { supabase } from './lib/supabase'
+import { useTheme } from './hooks/useTheme'
 import Header from './components/Header'
 import Login from './components/Login'
 import Sidebar from './components/Sidebar'
@@ -25,10 +26,10 @@ function buildUserProfile(supaUser) {
   return { nome, email, cargo: meta.cargo || 'Operador', iniciais, role }
 }
 
-function AppLayout({ user }) {
+function AppLayout({ user, dark, toggleTheme }) {
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-slate-100">
-      <Header user={user} onLogout={() => supabase.auth.signOut()} />
+    <div className="h-screen flex flex-col overflow-hidden bg-slate-100 dark:bg-slate-950">
+      <Header user={user} onLogout={() => supabase.auth.signOut()} dark={dark} onToggleTheme={toggleTheme} />
       <div className="flex flex-1 min-h-0">
         <Sidebar />
         <main className="flex-1 px-6 lg:px-8 py-6 overflow-y-auto">
@@ -56,9 +57,11 @@ export default function App() {
     return () => subscription.unsubscribe()
   }, [])
 
+  const [dark, toggleTheme] = useTheme()
+
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-red-200 border-t-red-600 rounded-full animate-spin" />
       </div>
     )
@@ -77,7 +80,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<AppLayout user={user} />}>
+        <Route element={<AppLayout user={user} dark={dark} toggleTheme={toggleTheme} />}>
           <Route path="/" element={<Navigate to="/lojas" replace />} />
           <Route path="/lojas" element={<LojasPage />} />
           <Route path="/contatos" element={<ContatosPage />} />

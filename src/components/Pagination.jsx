@@ -23,43 +23,41 @@ export default function Pagination({ current, total, onPageChange }) {
   }
 
   return (
-    <div className="flex items-center justify-between pt-4">
+    <div className="flex items-center justify-center gap-1 pt-4">
       <button
         onClick={() => onPageChange(current - 1)}
         disabled={current === 1}
-        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
+        className="inline-flex items-center justify-center w-8 h-8 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm dark:shadow-none"
+        title="Anterior"
       >
-        <ChevronLeft className="w-3.5 h-3.5" />
-        Anterior
+        <ChevronLeft className="w-4 h-4" />
       </button>
 
-      <div className="flex items-center gap-1">
-        {pages.map((p, i) =>
-          p === '...' ? (
-            <span key={`e${i}`} className="px-2 text-xs text-slate-400">...</span>
-          ) : (
-            <button
-              key={p}
-              onClick={() => onPageChange(p)}
-              className={`min-w-[32px] h-8 rounded-lg text-xs font-semibold transition-all ${
-                p === current
-                  ? 'bg-brand-600 text-white shadow-sm'
-                  : 'text-slate-600 hover:bg-slate-100'
-              }`}
-            >
-              {p}
-            </button>
-          )
-        )}
-      </div>
+      {pages.map((p, i) =>
+        p === '...' ? (
+          <span key={`e${i}`} className="px-1.5 text-xs text-slate-400 dark:text-slate-500">...</span>
+        ) : (
+          <button
+            key={p}
+            onClick={() => onPageChange(p)}
+            className={`min-w-[32px] h-8 rounded-lg text-xs font-semibold transition-all ${
+              p === current
+                ? 'bg-brand-600 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-brand-50 dark:hover:bg-slate-700 hover:text-brand-700 dark:hover:text-brand-400 hover:border-brand-300 dark:hover:border-slate-600 cursor-pointer shadow-sm dark:shadow-none'
+            }`}
+          >
+            {p}
+          </button>
+        )
+      )}
 
       <button
         onClick={() => onPageChange(current + 1)}
         disabled={current === total}
-        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
+        className="inline-flex items-center justify-center w-8 h-8 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm dark:shadow-none"
+        title="Próxima"
       >
-        Próxima
-        <ChevronRight className="w-3.5 h-3.5" />
+        <ChevronRight className="w-4 h-4" />
       </button>
     </div>
   )

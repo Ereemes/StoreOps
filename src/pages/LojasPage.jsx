@@ -23,11 +23,11 @@ const TABS = [
   { key: 'todas', label: 'Todas' },
 ]
 
-const PER_PAGE = 20
+const PER_PAGE = 10
 
 const selectBase = 'h-9 w-40 px-3 text-xs font-medium border rounded-lg cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 appearance-none bg-[length:16px] bg-[right_8px_center] bg-no-repeat'
-const selectIdle = 'bg-white border-slate-200 text-slate-700 hover:border-slate-300 shadow-sm'
-const selectActive = 'bg-brand-50 border-brand-300 text-brand-700 shadow-sm shadow-brand-100/50'
+const selectIdle = 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600 shadow-sm dark:shadow-none'
+const selectActive = 'bg-brand-50 dark:bg-brand-900/30 border-brand-300 dark:border-brand-700 text-brand-700 dark:text-brand-400 shadow-sm shadow-brand-100/50 dark:shadow-none'
 
 export default function LojasPage() {
   const [lojas, setLojas] = useState([])
@@ -133,28 +133,28 @@ export default function LojasPage() {
     <>
       <div className="flex items-baseline justify-between mb-5">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Lojas</h2>
-          <p className="text-sm text-slate-400 mt-0.5">Gerencie todas as unidades da rede</p>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Lojas</h2>
+          <p className="text-sm text-slate-400 dark:text-slate-500 mt-0.5">Gerencie todas as unidades da rede</p>
         </div>
-        <span className="text-sm text-slate-500">
-          <span className="text-lg font-bold text-slate-800">{filtered.length}</span>
+        <span className="text-sm text-slate-500 dark:text-slate-400">
+          <span className="text-lg font-bold text-slate-800 dark:text-white">{filtered.length}</span>
           <span className="ml-1">{tabLabel}</span>
         </span>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
         <div className="relative flex-1 max-w-2xl">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
           <input
             type="text"
             placeholder="Buscar por nome, cidade, CNPJ, unidade, diretor..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full h-9 pl-10 pr-4 bg-white border border-slate-200 rounded-lg text-sm placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-shadow"
+            className="w-full h-9 pl-10 pr-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 shadow-sm dark:shadow-none focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-shadow"
           />
         </div>
 
-        <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 shadow-sm shrink-0">
+        <div className="flex bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-0.5 shadow-sm dark:shadow-none shrink-0">
           {TABS.map(({ key, label }) => (
             <button
               key={key}
@@ -162,11 +162,11 @@ export default function LojasPage() {
               className={`h-8 px-4 rounded-md text-xs font-semibold transition-all ${
                 tab === key
                   ? 'bg-brand-600 text-white shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700'
               }`}
             >
               {label}
-              <span className={`ml-1.5 ${tab === key ? 'text-brand-200' : 'text-slate-400'}`}>
+              <span className={`ml-1.5 ${tab === key ? 'text-brand-200' : 'text-slate-400 dark:text-slate-500'}`}>
                 {tabCounts[key]}
               </span>
             </button>
@@ -175,15 +175,15 @@ export default function LojasPage() {
       </div>
 
       <div className="flex flex-wrap items-center gap-2.5 py-2 px-1 mb-4">
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-0.5">Localização</span>
+        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mr-0.5">Localização</span>
         <Select value={filters.uf} onChange={v => setFilter('uf', v)} placeholder="UF" opts={options.uf} active={!!filters.uf} />
         <Select value={filters.regional} onChange={v => setFilter('regional', v)} placeholder="Regional" opts={options.regional} active={!!filters.regional} />
         <Select value={filters.diretor} onChange={v => setFilter('diretor', v)} placeholder="Diretor" opts={options.diretor} active={!!filters.diretor} />
         <Select value={filters.unidade_negocio} onChange={v => setFilter('unidade_negocio', v)} placeholder="Unidade" opts={options.unidade_negocio} active={!!filters.unidade_negocio} />
 
-        <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block" />
+        <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1 hidden sm:block" />
 
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-0.5">Operação</span>
+        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mr-0.5">Operação</span>
         <Select
           value={fornecedor}
           onChange={v => { setFornecedor(v); setBetaActive(false) }}
@@ -199,20 +199,20 @@ export default function LojasPage() {
           active={!!taxa}
         />
 
-        <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block" />
+        <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1 hidden sm:block" />
 
         <button
           onClick={() => { setBetaActive(prev => !prev); if (!betaActive) { setFornecedor(''); setTaxa(''); setTab('todas') } }}
           className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
             betaActive
-              ? 'bg-amber-400 border-amber-500 text-amber-950 shadow-md shadow-amber-200/60'
-              : 'bg-white border-amber-300 text-amber-700 hover:bg-amber-50 shadow-sm'
+              ? 'bg-amber-400 border-amber-500 text-amber-950 shadow-md shadow-amber-200/60 dark:shadow-none'
+              : 'bg-white dark:bg-slate-800 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 shadow-sm dark:shadow-none'
           }`}
         >
           <FlaskConical className="w-3.5 h-3.5" />
           BETA
           <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-            betaActive ? 'bg-amber-600/20 text-amber-950' : 'bg-amber-100 text-amber-600'
+            betaActive ? 'bg-amber-600/20 text-amber-950' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
           }`}>
             {BETA_CODES.size}
           </span>
@@ -221,7 +221,7 @@ export default function LojasPage() {
         {activeFilterCount > 0 && (
           <button
             onClick={clearAll}
-            className="h-9 inline-flex items-center gap-1 px-3 text-xs font-medium text-slate-500 hover:text-red-600 transition-colors cursor-pointer ml-auto"
+            className="h-9 inline-flex items-center gap-1 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer ml-auto"
           >
             <X className="w-3 h-3" />
             Limpar filtros ({activeFilterCount})
@@ -231,14 +231,14 @@ export default function LojasPage() {
 
       {loading ? (
         <div className="text-center py-20">
-          <div className="inline-block w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin" />
-          <p className="mt-4 text-slate-500 text-sm">Carregando lojas...</p>
+          <div className="inline-block w-8 h-8 border-4 border-brand-200 dark:border-brand-800 border-t-brand-600 rounded-full animate-spin" />
+          <p className="mt-4 text-slate-500 dark:text-slate-400 text-sm">Carregando lojas...</p>
         </div>
       ) : (
         <>
           <StoreTable lojas={paginated} onSelect={setSelected} />
           <Pagination current={currentPage} total={totalPages} onPageChange={setPage} />
-          <p className="text-center text-[11px] text-slate-400 mt-2">
+          <p className="text-center text-[11px] text-slate-400 dark:text-slate-500 mt-2">
             {(currentPage - 1) * PER_PAGE + 1}–{Math.min(currentPage * PER_PAGE, filtered.length)} de {filtered.length}
           </p>
         </>

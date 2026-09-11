@@ -8,8 +8,8 @@ const MODULES = [
 
 export default function Sidebar() {
   return (
-    <aside className="hidden lg:flex w-56 flex-col border-r border-slate-200 bg-white py-5 px-3 shrink-0">
-      <p className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-[0.12em] mb-3">Módulos</p>
+    <aside className="hidden lg:flex w-56 flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-5 px-3 shrink-0">
+      <p className="px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.12em] mb-3">Módulos</p>
 
       <nav className="space-y-1">
         {MODULES.map(({ to, label, icon: Icon }) => (
@@ -19,8 +19,8 @@ export default function Sidebar() {
             className={({ isActive }) =>
               `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                 isActive
-                  ? 'bg-brand-50 text-brand-700 border border-brand-100 shadow-sm shadow-brand-100/50'
-                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700 border border-transparent'
+                  ? 'bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-400 border border-brand-100 dark:border-brand-800/50 shadow-sm shadow-brand-100/50 dark:shadow-none'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 border border-transparent'
               }`
             }
           >
@@ -29,7 +29,6 @@ export default function Sidebar() {
           </NavLink>
         ))}
       </nav>
-
     </aside>
   )
 }

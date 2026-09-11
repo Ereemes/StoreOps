@@ -38,43 +38,43 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
-        <div className="bg-white shadow-xl rounded-2xl border border-slate-200 overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 shadow-xl rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
           <div className="h-1.5 bg-red-600" />
 
           <div className="px-8 pt-8 pb-10">
             <div className="text-center mb-8">
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">Bem-vindo ao <span className="text-red-600">StoreOps</span></h1>
-              <p className="text-xs text-slate-400 mt-1">Grupo Oscar · Painel de Gestão</p>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Bem-vindo ao <span className="text-red-600 dark:text-red-500">StoreOps</span></h1>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Grupo Oscar · Painel de Gestão</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">E-mail</label>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">E-mail</label>
                 <input
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="usuario@grupooscar.com.br"
-                  className="w-full h-10 px-3.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 transition-all"
+                  className="w-full h-10 px-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Senha</label>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Senha</label>
                 <div className="relative">
                   <input
                     type={showPass ? 'text' : 'password'}
                     value={senha}
                     onChange={e => setSenha(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full h-10 px-3.5 pr-10 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 transition-all"
+                    className="w-full h-10 px-3.5 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPass(p => !p)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                   >
                     {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -91,11 +91,11 @@ export default function Login() {
                     type="checkbox"
                     checked={lembrar}
                     onChange={e => setLembrar(e.target.checked)}
-                    className="w-3.5 h-3.5 rounded border-slate-300 text-red-600 focus:ring-red-500/20"
+                    className="w-3.5 h-3.5 rounded border-slate-300 dark:border-slate-600 text-red-600 focus:ring-red-500/20"
                   />
-                  <span className="text-xs text-slate-500">Lembrar de mim</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Lembrar de mim</span>
                 </label>
-                <button type="button" className="text-xs text-red-600 hover:text-red-700 font-medium transition-colors">
+                <button type="button" className="text-xs text-red-600 dark:text-red-500 hover:text-red-700 dark:hover:text-red-400 font-medium transition-colors">
                   Esqueceu a senha?
                 </button>
               </div>
@@ -103,7 +103,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-10 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-sm shadow-red-200 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed mt-2"
+                className="w-full h-10 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-sm shadow-red-200 dark:shadow-none transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed mt-2"
               >
                 {loading ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -118,7 +118,7 @@ export default function Login() {
           </div>
         </div>
 
-        <p className="text-center text-[11px] text-slate-400 mt-6">
+        <p className="text-center text-[11px] text-slate-400 dark:text-slate-600 mt-6">
           © 2026 StoreOps · Grupo Oscar Calçados
         </p>
       </div>
