@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Search, FlaskConical, X } from 'lucide-react'
+import { Search, FlaskConical, ShoppingCart, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { TI_PARTNER_CODES, C4_CODES, BETA_CODES, ECOMMERCE_CODES, hasTaxa, isEcommerce } from '../utils/storeMappings'
 import StoreTable from '../components/StoreTable'
@@ -202,18 +202,27 @@ export default function LojasPage() {
           opts={[{ value: 'possui', label: 'Deslocamento' }]}
           active={!!taxa}
         />
-        <Select
-          value={ecommerce}
-          onChange={v => { setEcommerce(v); setBetaActive(false) }}
-          placeholder="E-commerce"
-          opts={[{ value: 'ativo', label: `Ativo (${ECOMMERCE_CODES.size})` }]}
-          active={!!ecommerce}
-        />
-
         <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1 hidden sm:block" />
 
         <button
-          onClick={() => { setBetaActive(prev => !prev); if (!betaActive) { setFornecedor(''); setTaxa(''); setTab('todas') } }}
+          onClick={() => { const next = ecommerce !== 'ativo'; setEcommerce(next ? 'ativo' : ''); if (next) { setBetaActive(false); setTab('todas') } }}
+          className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
+            ecommerce === 'ativo'
+              ? 'bg-sky-400 border-sky-500 text-sky-950 shadow-md shadow-sky-200/60 dark:shadow-none'
+              : 'bg-white dark:bg-slate-800 border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 shadow-sm dark:shadow-none'
+          }`}
+        >
+          <ShoppingCart className="w-3.5 h-3.5" />
+          E-COMMERCE
+          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+            ecommerce === 'ativo' ? 'bg-sky-600/20 text-sky-950' : 'bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400'
+          }`}>
+            {ECOMMERCE_CODES.size}
+          </span>
+        </button>
+
+        <button
+          onClick={() => { setBetaActive(prev => !prev); if (!betaActive) { setFornecedor(''); setTaxa(''); setEcommerce(''); setTab('todas') } }}
           className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
             betaActive
               ? 'bg-amber-400 border-amber-500 text-amber-950 shadow-md shadow-amber-200/60 dark:shadow-none'
