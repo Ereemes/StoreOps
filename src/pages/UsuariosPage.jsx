@@ -112,6 +112,7 @@ function UserModal({ user, onClose, onSaved }) {
                   className="w-full h-10 px-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all cursor-pointer"
                 >
                   <option value="Operador">Operador</option>
+                  <option value="Analista">Analista</option>
                   <option value="Coordenador">Coordenador</option>
                   <option value="Gerente">Gerente</option>
                   <option value="Regional">Regional</option>
