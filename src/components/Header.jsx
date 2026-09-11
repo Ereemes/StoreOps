@@ -1,7 +1,17 @@
 import { LogOut } from 'lucide-react'
+import { useLocation } from 'react-router-dom'
 import Logo from './Logo'
 
+const MODULE_LABELS = {
+  '/lojas': 'Lojas',
+  '/monitoramento': 'Monitoramento',
+  '/contatos': 'Contatos',
+}
+
 export default function Header({ user, onLogout }) {
+  const location = useLocation()
+  const currentModule = MODULE_LABELS[location.pathname] || 'Lojas'
+
   return (
     <header className="h-16 flex items-center justify-between px-6 bg-slate-900 border-b border-slate-800">
       <div className="flex items-center gap-3">
@@ -17,7 +27,7 @@ export default function Header({ user, onLogout }) {
         <span className="text-slate-600 mx-2">·</span>
         <span className="text-slate-500">TI</span>
         <span className="text-slate-600 mx-2">·</span>
-        <span className="font-semibold text-white">Lojas</span>
+        <span className="font-semibold text-white">{currentModule}</span>
       </div>
 
       <div className="flex items-center gap-3">

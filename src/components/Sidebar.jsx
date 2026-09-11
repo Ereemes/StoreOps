@@ -1,4 +1,11 @@
-import { Store } from 'lucide-react'
+import { NavLink } from 'react-router-dom'
+import { Store, Activity, Tv, Phone } from 'lucide-react'
+
+const MODULES = [
+  { to: '/lojas', label: 'Lojas', icon: Store },
+  { to: '/monitoramento', label: 'Monitoramento', icon: Activity },
+  { to: '/contatos', label: 'Contatos', icon: Phone },
+]
 
 export default function Sidebar() {
   return (
@@ -6,11 +13,33 @@ export default function Sidebar() {
       <p className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-[0.12em] mb-3">Módulos</p>
 
       <nav className="space-y-1">
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold bg-brand-50 text-brand-700 border border-brand-100 shadow-sm shadow-brand-100/50 transition-all">
-          <Store className="w-[18px] h-[18px]" />
-          Lojas
-        </button>
+        {MODULES.map(({ to, label, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) =>
+              `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                isActive
+                  ? 'bg-brand-50 text-brand-700 border border-brand-100 shadow-sm shadow-brand-100/50'
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700 border border-transparent'
+              }`
+            }
+          >
+            <Icon className="w-[18px] h-[18px]" />
+            {label}
+          </NavLink>
+        ))}
       </nav>
+
+      <div className="mt-auto pt-4 border-t border-slate-100">
+        <button
+          onClick={() => window.open('/tv/sefaz', '_blank')}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:text-slate-700 border border-transparent transition-all"
+        >
+          <Tv className="w-[18px] h-[18px]" />
+          Modo TV
+        </button>
+      </div>
     </aside>
   )
 }
