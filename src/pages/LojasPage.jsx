@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react'
-import { Search, FlaskConical, ShoppingCart, Building, Server, MapPin, Map as MapIcon, Users, UserStar, Store, X } from 'lucide-react'
+import { useState, useEffect, useMemo, useRef } from 'react'
+import { Search, FlaskConical, ShoppingCart, Building, Server, MapPin, Map as MapIcon, Users, UserStar, Store, X, ChevronDown } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { TI_PARTNER_CODES, C4_CODES, BETA_CODES, ECOMMERCE_CODES, hasTaxa, isEcommerce } from '../utils/storeMappings'
 import StoreTable from '../components/StoreTable'
@@ -30,6 +30,22 @@ const selectIdle = 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slat
 const selectActive = 'bg-brand-50 dark:bg-brand-900/30 border-brand-300 dark:border-brand-700 text-brand-700 dark:text-brand-400 shadow-sm shadow-brand-100/50 dark:shadow-none'
 
 function ChipSelect({ value, onChange, placeholder, opts, icon: Icon }) {
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const ref = useRef(null)
+  const inputRef = useRef(null)
+
+  useEffect(() => {
+    function handleClick(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  useEffect(() => { if (open && inputRef.current) inputRef.current.focus() }, [open])
+
+  const items = opts.map(v => typeof v === 'string' ? { value: v, label: v } : v)
+  const filtered = query ? items.filter(i => i.label.toLowerCase().includes(query.toLowerCase())) : items
+
   if (value) {
     return (
       <span className="h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-semibold border bg-sky-50 dark:bg-sky-900/20 border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-400">
@@ -44,21 +60,57 @@ function ChipSelect({ value, onChange, placeholder, opts, icon: Icon }) {
       </span>
     )
   }
+
   return (
-    <div className="relative">
-      <Icon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 dark:text-slate-500 pointer-events-none" />
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className={`${selectBase} pl-8 ${selectIdle}`}
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => { setOpen(!open); setQuery('') }}
+        className={`h-9 w-40 inline-flex items-center gap-2 px-3 rounded-lg text-xs font-medium border transition-all shadow-sm ${
+          open
+            ? 'bg-white dark:bg-slate-800 border-brand-400 dark:border-brand-500 ring-2 ring-brand-500/20'
+            : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'
+        }`}
       >
-        <option value="">{placeholder}</option>
-        {opts.map(v =>
-          typeof v === 'string'
-            ? <option key={v} value={v}>{v}</option>
-            : <option key={v.value} value={v.value}>{v.label}</option>
-        )}
-      </select>
+        <Icon className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
+        <span className="flex-1 text-left text-slate-400 dark:text-slate-500">{placeholder}</span>
+        <ChevronDown className={`w-3 h-3 text-slate-400 dark:text-slate-500 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {open && (
+        <div className="absolute top-full left-0 mt-1.5 w-56 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg dark:shadow-black/30 z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+          {items.length > 6 && (
+            <div className="p-2 border-b border-slate-100 dark:border-slate-700">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                  placeholder="Buscar..."
+                  className="w-full h-7 pl-7 pr-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-md text-slate-700 dark:text-slate-300 placeholder-slate-400 focus:outline-none focus:border-brand-400"
+                />
+              </div>
+            </div>
+          )}
+          <div className="max-h-52 overflow-y-auto py-1">
+            {filtered.length === 0 ? (
+              <p className="text-xs text-slate-400 text-center py-3">Nenhum resultado</p>
+            ) : (
+              filtered.map(item => (
+                <button
+                  key={item.value}
+                  onClick={() => { onChange(item.value); setOpen(false); setQuery('') }}
+                  className="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-brand-50 dark:hover:bg-slate-700 hover:text-brand-700 dark:hover:text-brand-400 transition-colors flex items-center gap-2"
+                >
+                  <Icon className="w-3 h-3 text-slate-300 dark:text-slate-600" />
+                  {item.label}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
