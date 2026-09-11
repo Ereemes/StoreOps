@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Search, FlaskConical, ShoppingCart, Building, Server, MapPin, X } from 'lucide-react'
+import { Search, FlaskConical, ShoppingCart, Building, Server, MapPin, Map, Users, UserStar, Store, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { TI_PARTNER_CODES, C4_CODES, BETA_CODES, ECOMMERCE_CODES, hasTaxa, isEcommerce } from '../utils/storeMappings'
 import StoreTable from '../components/StoreTable'
@@ -116,20 +116,37 @@ export default function LojasPage() {
 
   const tabLabel = betaActive ? 'lojas BETA' : ecommerce === 'ativo' ? 'lojas E-commerce' : fornecedor === 'ti_partner' ? 'lojas TI Partner' : fornecedor === 'c4' ? 'lojas C4' : taxa === 'possui' ? 'lojas com taxa' : tab === 'ativas' ? 'lojas ativas' : tab === 'fechadas' ? 'lojas fechadas' : 'lojas'
 
-  function Select({ value, onChange, placeholder, opts, active }) {
+  function ChipSelect({ value, onChange, placeholder, opts, icon: Icon }) {
+    if (value) {
+      return (
+        <span className="h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-semibold border bg-sky-50 dark:bg-sky-900/20 border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-400">
+          <Icon className="w-3.5 h-3.5 text-sky-500 dark:text-sky-400" />
+          {value}
+          <button
+            onClick={e => { e.stopPropagation(); onChange('') }}
+            className="w-4 h-4 flex items-center justify-center rounded-full bg-sky-500 dark:bg-sky-600 text-white ml-0.5 hover:bg-sky-600 dark:hover:bg-sky-500 transition-colors"
+          >
+            <X className="w-2.5 h-2.5" />
+          </button>
+        </span>
+      )
+    }
     return (
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className={`${selectBase} ${active ? selectActive : selectIdle}`}
-      >
-        <option value="">{placeholder}</option>
-        {opts.map(v =>
-          typeof v === 'string'
-            ? <option key={v} value={v}>{v}</option>
-            : <option key={v.value} value={v.value}>{v.label}</option>
-        )}
-      </select>
+      <div className="relative">
+        <Icon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 dark:text-slate-500 pointer-events-none" />
+        <select
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          className={`${selectBase} pl-8 ${selectIdle}`}
+        >
+          <option value="">{placeholder}</option>
+          {opts.map(v =>
+            typeof v === 'string'
+              ? <option key={v} value={v}>{v}</option>
+              : <option key={v.value} value={v.value}>{v.label}</option>
+          )}
+        </select>
+      </div>
     )
   }
 
@@ -180,10 +197,10 @@ export default function LojasPage() {
 
       <div className="flex flex-wrap items-center gap-2.5 py-2 px-1 mb-4">
         <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mr-0.5">Localização</span>
-        <Select value={filters.uf} onChange={v => setFilter('uf', v)} placeholder="UF" opts={options.uf} active={!!filters.uf} />
-        <Select value={filters.regional} onChange={v => setFilter('regional', v)} placeholder="Regional" opts={options.regional} active={!!filters.regional} />
-        <Select value={filters.diretor} onChange={v => setFilter('diretor', v)} placeholder="Diretor" opts={options.diretor} active={!!filters.diretor} />
-        <Select value={filters.unidade_negocio} onChange={v => setFilter('unidade_negocio', v)} placeholder="Unidade" opts={options.unidade_negocio} active={!!filters.unidade_negocio} />
+        <ChipSelect value={filters.uf} onChange={v => setFilter('uf', v)} placeholder="UF" opts={options.uf} icon={Map} />
+        <ChipSelect value={filters.regional} onChange={v => setFilter('regional', v)} placeholder="Regional" opts={options.regional} icon={Users} />
+        <ChipSelect value={filters.diretor} onChange={v => setFilter('diretor', v)} placeholder="Diretor" opts={options.diretor} icon={UserStar} />
+        <ChipSelect value={filters.unidade_negocio} onChange={v => setFilter('unidade_negocio', v)} placeholder="Unidade" opts={options.unidade_negocio} icon={Store} />
 
         <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1 hidden sm:block" />
 
