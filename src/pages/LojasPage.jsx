@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Search, FlaskConical, X } from 'lucide-react'
+import { Search, FlaskConical, ShoppingCart, Building, Server, MapPin, Map as MapIcon, Users, UserStar, Store, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { TI_PARTNER_CODES, C4_CODES, BETA_CODES, hasTaxa } from '../utils/storeMappings'
+import { TI_PARTNER_CODES, C4_CODES, BETA_CODES, ECOMMERCE_CODES, hasTaxa, isEcommerce } from '../utils/storeMappings'
 import StoreTable from '../components/StoreTable'
 import StoreDrawer from '../components/StoreDrawer'
 import Pagination from '../components/Pagination'
@@ -29,6 +29,40 @@ const selectBase = 'h-9 w-40 px-3 text-xs font-medium border rounded-lg cursor-p
 const selectIdle = 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600 shadow-sm dark:shadow-none'
 const selectActive = 'bg-brand-50 dark:bg-brand-900/30 border-brand-300 dark:border-brand-700 text-brand-700 dark:text-brand-400 shadow-sm shadow-brand-100/50 dark:shadow-none'
 
+function ChipSelect({ value, onChange, placeholder, opts, icon: Icon }) {
+  if (value) {
+    return (
+      <span className="h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-semibold border bg-sky-50 dark:bg-sky-900/20 border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-400">
+        <Icon className="w-3.5 h-3.5 text-sky-500 dark:text-sky-400" />
+        {value}
+        <button
+          onClick={e => { e.stopPropagation(); onChange('') }}
+          className="w-4 h-4 flex items-center justify-center rounded-full bg-sky-500 dark:bg-sky-600 text-white ml-0.5 hover:bg-sky-600 dark:hover:bg-sky-500 transition-colors"
+        >
+          <X className="w-2.5 h-2.5" />
+        </button>
+      </span>
+    )
+  }
+  return (
+    <div className="relative">
+      <Icon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 dark:text-slate-500 pointer-events-none" />
+      <select
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className={`${selectBase} pl-8 ${selectIdle}`}
+      >
+        <option value="">{placeholder}</option>
+        {opts.map(v =>
+          typeof v === 'string'
+            ? <option key={v} value={v}>{v}</option>
+            : <option key={v.value} value={v.value}>{v.label}</option>
+        )}
+      </select>
+    </div>
+  )
+}
+
 export default function LojasPage() {
   const [lojas, setLojas] = useState([])
   const [loading, setLoading] = useState(true)
@@ -36,6 +70,7 @@ export default function LojasPage() {
   const [tab, setTab] = useState('ativas')
   const [fornecedor, setFornecedor] = useState('')
   const [taxa, setTaxa] = useState('')
+  const [ecommerce, setEcommerce] = useState('')
   const [betaActive, setBetaActive] = useState(false)
   const [page, setPage] = useState(1)
   const [filters, setFilters] = useState({ uf: '', regional: '', diretor: '', unidade_negocio: '' })
@@ -44,10 +79,15 @@ export default function LojasPage() {
   useEffect(() => {
     async function fetchLojas() {
       setLoading(true)
-      const { data, error } = await supabase.from('lojas').select('*')
-      if (error) console.error('Erro ao buscar lojas:', error.message)
-      else setLojas(deduplicateAndSort(data))
-      setLoading(false)
+      try {
+        const { data, error } = await supabase.from('lojas').select('*')
+        if (error) console.error('Erro ao buscar lojas:', error.message)
+        else setLojas(deduplicateAndSort(data))
+      } catch (err) {
+        console.error('Erro ao buscar lojas:', err)
+      } finally {
+        setLoading(false)
+      }
     }
     fetchLojas()
   }, [])
@@ -75,6 +115,8 @@ export default function LojasPage() {
 
     if (taxa === 'possui') result = result.filter(l => hasTaxa(l.codigo))
 
+    if (ecommerce === 'ativo') result = result.filter(l => isEcommerce(l.codigo))
+
     if (search.trim()) {
       const q = search.toLowerCase().trim()
       result = result.filter(l =>
@@ -89,45 +131,29 @@ export default function LojasPage() {
     if (filters.unidade_negocio) result = result.filter(l => l.unidade_negocio === filters.unidade_negocio)
 
     return result
-  }, [lojas, tab, search, filters, fornecedor, taxa, betaActive])
+  }, [lojas, tab, search, filters, fornecedor, taxa, ecommerce, betaActive])
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE)
   const currentPage = Math.min(page, totalPages || 1)
   const paginated = filtered.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE)
 
-  useEffect(() => { setPage(1) }, [tab, search, filters, fornecedor, taxa, betaActive])
+  useEffect(() => { setPage(1) }, [tab, search, filters, fornecedor, taxa, ecommerce, betaActive])
 
   function setFilter(key, value) {
     setFilters(prev => ({ ...prev, [key]: value }))
   }
 
-  const activeFilterCount = Object.values(filters).filter(Boolean).length + (fornecedor ? 1 : 0) + (taxa ? 1 : 0) + (betaActive ? 1 : 0)
+  const activeFilterCount = Object.values(filters).filter(Boolean).length + (fornecedor ? 1 : 0) + (taxa ? 1 : 0) + (ecommerce ? 1 : 0) + (betaActive ? 1 : 0)
 
   function clearAll() {
     setFilters({ uf: '', regional: '', diretor: '', unidade_negocio: '' })
     setFornecedor('')
     setTaxa('')
+    setEcommerce('')
     setBetaActive(false)
   }
 
-  const tabLabel = betaActive ? 'lojas BETA' : fornecedor === 'ti_partner' ? 'lojas TI Partner' : fornecedor === 'c4' ? 'lojas C4' : taxa === 'possui' ? 'lojas com taxa' : tab === 'ativas' ? 'lojas ativas' : tab === 'fechadas' ? 'lojas fechadas' : 'lojas'
-
-  function Select({ value, onChange, placeholder, opts, active }) {
-    return (
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className={`${selectBase} ${active ? selectActive : selectIdle}`}
-      >
-        <option value="">{placeholder}</option>
-        {opts.map(v =>
-          typeof v === 'string'
-            ? <option key={v} value={v}>{v}</option>
-            : <option key={v.value} value={v.value}>{v.label}</option>
-        )}
-      </select>
-    )
-  }
+  const tabLabel = betaActive ? 'lojas BETA' : ecommerce === 'ativo' ? 'lojas E-commerce' : fornecedor === 'ti_partner' ? 'lojas TI Partner' : fornecedor === 'c4' ? 'lojas C4' : taxa === 'possui' ? 'lojas com taxa' : tab === 'ativas' ? 'lojas ativas' : tab === 'fechadas' ? 'lojas fechadas' : 'lojas'
 
   return (
     <>
@@ -176,33 +202,85 @@ export default function LojasPage() {
 
       <div className="flex flex-wrap items-center gap-2.5 py-2 px-1 mb-4">
         <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mr-0.5">Localização</span>
-        <Select value={filters.uf} onChange={v => setFilter('uf', v)} placeholder="UF" opts={options.uf} active={!!filters.uf} />
-        <Select value={filters.regional} onChange={v => setFilter('regional', v)} placeholder="Regional" opts={options.regional} active={!!filters.regional} />
-        <Select value={filters.diretor} onChange={v => setFilter('diretor', v)} placeholder="Diretor" opts={options.diretor} active={!!filters.diretor} />
-        <Select value={filters.unidade_negocio} onChange={v => setFilter('unidade_negocio', v)} placeholder="Unidade" opts={options.unidade_negocio} active={!!filters.unidade_negocio} />
+        <ChipSelect value={filters.uf} onChange={v => setFilter('uf', v)} placeholder="UF" opts={options.uf} icon={MapIcon} />
+        <ChipSelect value={filters.regional} onChange={v => setFilter('regional', v)} placeholder="Regional" opts={options.regional} icon={Users} />
+        <ChipSelect value={filters.diretor} onChange={v => setFilter('diretor', v)} placeholder="Diretor" opts={options.diretor} icon={UserStar} />
+        <ChipSelect value={filters.unidade_negocio} onChange={v => setFilter('unidade_negocio', v)} placeholder="Unidade" opts={options.unidade_negocio} icon={Store} />
 
         <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1 hidden sm:block" />
 
         <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mr-0.5">Operação</span>
-        <Select
-          value={fornecedor}
-          onChange={v => { setFornecedor(v); setBetaActive(false) }}
-          placeholder="Fornecedor"
-          opts={[{ value: 'ti_partner', label: 'TI Partner' }, { value: 'c4', label: 'C4' }]}
-          active={!!fornecedor}
-        />
-        <Select
-          value={taxa}
-          onChange={v => { setTaxa(v); setBetaActive(false) }}
-          placeholder="Taxa"
-          opts={[{ value: 'possui', label: 'Deslocamento' }]}
-          active={!!taxa}
-        />
-
-        <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1 hidden sm:block" />
 
         <button
-          onClick={() => { setBetaActive(prev => !prev); if (!betaActive) { setFornecedor(''); setTaxa(''); setTab('todas') } }}
+          onClick={() => { const next = ecommerce !== 'ativo'; setEcommerce(next ? 'ativo' : ''); if (next) { setFornecedor(''); setTaxa(''); setBetaActive(false); setTab('todas') } }}
+          className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
+            ecommerce === 'ativo'
+              ? 'bg-sky-400 border-sky-500 text-sky-950 shadow-md shadow-sky-200/60 dark:shadow-none'
+              : 'bg-white dark:bg-slate-800 border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 shadow-sm dark:shadow-none'
+          }`}
+        >
+          <ShoppingCart className="w-3.5 h-3.5" />
+          E-COMMERCE
+          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+            ecommerce === 'ativo' ? 'bg-sky-600/20 text-sky-950' : 'bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400'
+          }`}>
+            {ECOMMERCE_CODES.size}
+          </span>
+        </button>
+
+        <button
+          onClick={() => { const next = fornecedor !== 'ti_partner'; setFornecedor(next ? 'ti_partner' : ''); if (next) { setEcommerce(''); setTaxa(''); setBetaActive(false); setTab('todas') } }}
+          className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
+            fornecedor === 'ti_partner'
+              ? 'bg-emerald-400 border-emerald-500 text-emerald-950 shadow-md shadow-emerald-200/60 dark:shadow-none'
+              : 'bg-white dark:bg-slate-800 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 shadow-sm dark:shadow-none'
+          }`}
+        >
+          <Building className="w-3.5 h-3.5" />
+          TI PARTNER
+          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+            fornecedor === 'ti_partner' ? 'bg-emerald-600/20 text-emerald-950' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
+          }`}>
+            {TI_PARTNER_CODES.size}
+          </span>
+        </button>
+
+        <button
+          onClick={() => { const next = fornecedor !== 'c4'; setFornecedor(next ? 'c4' : ''); if (next) { setEcommerce(''); setTaxa(''); setBetaActive(false); setTab('todas') } }}
+          className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
+            fornecedor === 'c4'
+              ? 'bg-violet-400 border-violet-500 text-violet-950 shadow-md shadow-violet-200/60 dark:shadow-none'
+              : 'bg-white dark:bg-slate-800 border-violet-300 dark:border-violet-700 text-violet-700 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 shadow-sm dark:shadow-none'
+          }`}
+        >
+          <Server className="w-3.5 h-3.5" />
+          C4
+          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+            fornecedor === 'c4' ? 'bg-violet-600/20 text-violet-950' : 'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400'
+          }`}>
+            {C4_CODES.size}
+          </span>
+        </button>
+
+        <button
+          onClick={() => { const next = taxa !== 'possui'; setTaxa(next ? 'possui' : ''); if (next) { setEcommerce(''); setFornecedor(''); setBetaActive(false); setTab('todas') } }}
+          className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
+            taxa === 'possui'
+              ? 'bg-purple-400 border-purple-500 text-purple-950 shadow-md shadow-purple-200/60 dark:shadow-none'
+              : 'bg-white dark:bg-slate-800 border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 shadow-sm dark:shadow-none'
+          }`}
+        >
+          <MapPin className="w-3.5 h-3.5" />
+          DESLOCAMENTO
+          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+            taxa === 'possui' ? 'bg-purple-600/20 text-purple-950' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+          }`}>
+            {TI_PARTNER_CODES.size + C4_CODES.size}
+          </span>
+        </button>
+
+        <button
+          onClick={() => { setBetaActive(prev => !prev); if (!betaActive) { setFornecedor(''); setTaxa(''); setEcommerce(''); setTab('todas') } }}
           className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
             betaActive
               ? 'bg-amber-400 border-amber-500 text-amber-950 shadow-md shadow-amber-200/60 dark:shadow-none'
