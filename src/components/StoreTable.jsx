@@ -1,6 +1,6 @@
 import { Search } from 'lucide-react'
 import StatusBadge from './StatusBadge'
-import { isBeta, hasTaxa, getFornecedor } from '../utils/storeMappings'
+import { isBeta, hasTaxa, isEcommerce, getFornecedor } from '../utils/storeMappings'
 
 function CellValue({ value, fallback = 'Não Informado' }) {
   if (!value || (typeof value === 'string' && !value.trim())) {
@@ -52,6 +52,9 @@ export default function StoreTable({ lojas, onSelect }) {
                   <span className="font-semibold text-slate-900 dark:text-slate-100 leading-snug">{loja.nome_fantasia || '—'}</span>
                   {isBeta(loja.codigo) && (
                     <span className="bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-400 text-[10px] font-bold px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-700/50">BETA</span>
+                  )}
+                  {isEcommerce(loja.codigo) && (
+                    <span className="bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 text-[10px] font-bold px-1.5 py-0.5 rounded border border-sky-200 dark:border-sky-700/50">E-COMMERCE</span>
                   )}
                   {hasTaxa(loja.codigo) && (
                     <span className="bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-[11px] font-semibold px-2 py-0.5 rounded border border-purple-200 dark:border-purple-700/50">Deslocamento</span>

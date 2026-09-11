@@ -6,6 +6,8 @@ export const TI_PARTNER_CODES = new Set([
 
 export const C4_CODES = new Set([202,208,214,346,349,351,359,363,391])
 
+export const ECOMMERCE_CODES = new Set([1,4,6,23,39,32,26,124,106,58,302,343,345,353,367,356,404,348,601,505,813,816])
+
 export const BETA_CODES = new Set([2,9,28,209,214,224,227,302,333,404,427])
 
 export function isBeta(codigo) {
@@ -15,6 +17,10 @@ export function isBeta(codigo) {
 export function hasTaxa(codigo) {
   const c = Number(codigo)
   return TI_PARTNER_CODES.has(c) || C4_CODES.has(c)
+}
+
+export function isEcommerce(codigo) {
+  return ECOMMERCE_CODES.has(Number(codigo))
 }
 
 export function getFornecedor(codigo) {

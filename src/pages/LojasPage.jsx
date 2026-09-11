@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Search, FlaskConical, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { TI_PARTNER_CODES, C4_CODES, BETA_CODES, hasTaxa } from '../utils/storeMappings'
+import { TI_PARTNER_CODES, C4_CODES, BETA_CODES, ECOMMERCE_CODES, hasTaxa, isEcommerce } from '../utils/storeMappings'
 import StoreTable from '../components/StoreTable'
 import StoreDrawer from '../components/StoreDrawer'
 import Pagination from '../components/Pagination'
@@ -36,6 +36,7 @@ export default function LojasPage() {
   const [tab, setTab] = useState('ativas')
   const [fornecedor, setFornecedor] = useState('')
   const [taxa, setTaxa] = useState('')
+  const [ecommerce, setEcommerce] = useState('')
   const [betaActive, setBetaActive] = useState(false)
   const [page, setPage] = useState(1)
   const [filters, setFilters] = useState({ uf: '', regional: '', diretor: '', unidade_negocio: '' })
@@ -75,6 +76,8 @@ export default function LojasPage() {
 
     if (taxa === 'possui') result = result.filter(l => hasTaxa(l.codigo))
 
+    if (ecommerce === 'ativo') result = result.filter(l => isEcommerce(l.codigo))
+
     if (search.trim()) {
       const q = search.toLowerCase().trim()
       result = result.filter(l =>
@@ -89,28 +92,29 @@ export default function LojasPage() {
     if (filters.unidade_negocio) result = result.filter(l => l.unidade_negocio === filters.unidade_negocio)
 
     return result
-  }, [lojas, tab, search, filters, fornecedor, taxa, betaActive])
+  }, [lojas, tab, search, filters, fornecedor, taxa, ecommerce, betaActive])
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE)
   const currentPage = Math.min(page, totalPages || 1)
   const paginated = filtered.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE)
 
-  useEffect(() => { setPage(1) }, [tab, search, filters, fornecedor, taxa, betaActive])
+  useEffect(() => { setPage(1) }, [tab, search, filters, fornecedor, taxa, ecommerce, betaActive])
 
   function setFilter(key, value) {
     setFilters(prev => ({ ...prev, [key]: value }))
   }
 
-  const activeFilterCount = Object.values(filters).filter(Boolean).length + (fornecedor ? 1 : 0) + (taxa ? 1 : 0) + (betaActive ? 1 : 0)
+  const activeFilterCount = Object.values(filters).filter(Boolean).length + (fornecedor ? 1 : 0) + (taxa ? 1 : 0) + (ecommerce ? 1 : 0) + (betaActive ? 1 : 0)
 
   function clearAll() {
     setFilters({ uf: '', regional: '', diretor: '', unidade_negocio: '' })
     setFornecedor('')
     setTaxa('')
+    setEcommerce('')
     setBetaActive(false)
   }
 
-  const tabLabel = betaActive ? 'lojas BETA' : fornecedor === 'ti_partner' ? 'lojas TI Partner' : fornecedor === 'c4' ? 'lojas C4' : taxa === 'possui' ? 'lojas com taxa' : tab === 'ativas' ? 'lojas ativas' : tab === 'fechadas' ? 'lojas fechadas' : 'lojas'
+  const tabLabel = betaActive ? 'lojas BETA' : ecommerce === 'ativo' ? 'lojas E-commerce' : fornecedor === 'ti_partner' ? 'lojas TI Partner' : fornecedor === 'c4' ? 'lojas C4' : taxa === 'possui' ? 'lojas com taxa' : tab === 'ativas' ? 'lojas ativas' : tab === 'fechadas' ? 'lojas fechadas' : 'lojas'
 
   function Select({ value, onChange, placeholder, opts, active }) {
     return (
@@ -197,6 +201,13 @@ export default function LojasPage() {
           placeholder="Taxa"
           opts={[{ value: 'possui', label: 'Deslocamento' }]}
           active={!!taxa}
+        />
+        <Select
+          value={ecommerce}
+          onChange={v => { setEcommerce(v); setBetaActive(false) }}
+          placeholder="E-commerce"
+          opts={[{ value: 'ativo', label: `Ativo (${ECOMMERCE_CODES.size})` }]}
+          active={!!ecommerce}
         />
 
         <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1 hidden sm:block" />
