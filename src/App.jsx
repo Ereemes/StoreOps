@@ -8,6 +8,9 @@ import Sidebar from './components/Sidebar'
 import LojasPage from './pages/LojasPage'
 import MonitoramentoPage from './pages/MonitoramentoPage'
 import ContatosPage from './pages/ContatosPage'
+import UsuariosPage from './pages/UsuariosPage'
+
+const ADMIN_EMAILS = ['admin.ti@grupooscar.com.br']
 
 const AGENT_PROFILES = {
   'admin.ti@grupooscar.com.br': { nome: 'Admin TI', cargo: 'Coordenador', iniciais: 'AT' },
@@ -26,12 +29,16 @@ function buildUserProfile(supaUser) {
   return { nome, email, cargo: meta.cargo || 'Operador', iniciais, role }
 }
 
+function isAdmin(user) {
+  return ADMIN_EMAILS.includes(user?.email?.toLowerCase())
+}
+
 function AppLayout({ user, dark, toggleTheme }) {
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-slate-100 dark:bg-slate-950">
       <Header user={user} onLogout={() => supabase.auth.signOut()} dark={dark} onToggleTheme={toggleTheme} />
       <div className="flex flex-1 min-h-0">
-        <Sidebar />
+        <Sidebar isAdmin={isAdmin(user)} />
         <main className="flex-1 px-6 lg:px-8 py-6 overflow-y-auto">
           <Outlet />
         </main>
@@ -77,6 +84,8 @@ export default function App() {
     )
   }
 
+  const admin = isAdmin(user)
+
   return (
     <BrowserRouter>
       <Routes>
@@ -84,6 +93,7 @@ export default function App() {
           <Route path="/" element={<Navigate to="/lojas" replace />} />
           <Route path="/lojas" element={<LojasPage />} />
           <Route path="/contatos" element={<ContatosPage />} />
+          {admin && <Route path="/usuarios" element={<UsuariosPage />} />}
           <Route path="*" element={<Navigate to="/lojas" replace />} />
         </Route>
       </Routes>

@@ -1,18 +1,24 @@
 import { NavLink } from 'react-router-dom'
-import { Store, Phone } from 'lucide-react'
+import { Store, Phone, Users } from 'lucide-react'
 
 const MODULES = [
   { to: '/lojas', label: 'Lojas', icon: Store },
   { to: '/contatos', label: 'Contatos', icon: Phone },
 ]
 
-export default function Sidebar() {
+const ADMIN_MODULES = [
+  { to: '/usuarios', label: 'Usuários', icon: Users },
+]
+
+export default function Sidebar({ isAdmin }) {
+  const modules = isAdmin ? [...MODULES, ...ADMIN_MODULES] : MODULES
+
   return (
     <aside className="hidden lg:flex w-56 flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-5 px-3 shrink-0">
       <p className="px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.12em] mb-3">Módulos</p>
 
       <nav className="space-y-1">
-        {MODULES.map(({ to, label, icon: Icon }) => (
+        {modules.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}

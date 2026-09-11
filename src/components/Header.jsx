@@ -5,6 +5,7 @@ import Logo from './Logo'
 const MODULE_LABELS = {
   '/lojas': 'Lojas',
   '/contatos': 'Contatos',
+  '/usuarios': 'Usuários',
 }
 
 export default function Header({ user, onLogout, dark, onToggleTheme }) {
