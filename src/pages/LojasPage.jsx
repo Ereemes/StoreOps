@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Search, FlaskConical, ShoppingCart, X } from 'lucide-react'
+import { Search, FlaskConical, ShoppingCart, Building, Server, MapPin, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { TI_PARTNER_CODES, C4_CODES, BETA_CODES, ECOMMERCE_CODES, hasTaxa, isEcommerce } from '../utils/storeMappings'
 import StoreTable from '../components/StoreTable'
@@ -188,24 +188,9 @@ export default function LojasPage() {
         <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1 hidden sm:block" />
 
         <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mr-0.5">Operação</span>
-        <Select
-          value={fornecedor}
-          onChange={v => { setFornecedor(v); setBetaActive(false) }}
-          placeholder="Fornecedor"
-          opts={[{ value: 'ti_partner', label: 'TI Partner' }, { value: 'c4', label: 'C4' }]}
-          active={!!fornecedor}
-        />
-        <Select
-          value={taxa}
-          onChange={v => { setTaxa(v); setBetaActive(false) }}
-          placeholder="Taxa"
-          opts={[{ value: 'possui', label: 'Deslocamento' }]}
-          active={!!taxa}
-        />
-        <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1 hidden sm:block" />
 
         <button
-          onClick={() => { const next = ecommerce !== 'ativo'; setEcommerce(next ? 'ativo' : ''); if (next) { setBetaActive(false); setTab('todas') } }}
+          onClick={() => { const next = ecommerce !== 'ativo'; setEcommerce(next ? 'ativo' : ''); if (next) { setFornecedor(''); setTaxa(''); setBetaActive(false); setTab('todas') } }}
           className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
             ecommerce === 'ativo'
               ? 'bg-sky-400 border-sky-500 text-sky-950 shadow-md shadow-sky-200/60 dark:shadow-none'
@@ -218,6 +203,57 @@ export default function LojasPage() {
             ecommerce === 'ativo' ? 'bg-sky-600/20 text-sky-950' : 'bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400'
           }`}>
             {ECOMMERCE_CODES.size}
+          </span>
+        </button>
+
+        <button
+          onClick={() => { const next = fornecedor !== 'ti_partner'; setFornecedor(next ? 'ti_partner' : ''); if (next) { setEcommerce(''); setTaxa(''); setBetaActive(false); setTab('todas') } }}
+          className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
+            fornecedor === 'ti_partner'
+              ? 'bg-emerald-400 border-emerald-500 text-emerald-950 shadow-md shadow-emerald-200/60 dark:shadow-none'
+              : 'bg-white dark:bg-slate-800 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 shadow-sm dark:shadow-none'
+          }`}
+        >
+          <Building className="w-3.5 h-3.5" />
+          TI PARTNER
+          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+            fornecedor === 'ti_partner' ? 'bg-emerald-600/20 text-emerald-950' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
+          }`}>
+            {TI_PARTNER_CODES.size}
+          </span>
+        </button>
+
+        <button
+          onClick={() => { const next = fornecedor !== 'c4'; setFornecedor(next ? 'c4' : ''); if (next) { setEcommerce(''); setTaxa(''); setBetaActive(false); setTab('todas') } }}
+          className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
+            fornecedor === 'c4'
+              ? 'bg-violet-400 border-violet-500 text-violet-950 shadow-md shadow-violet-200/60 dark:shadow-none'
+              : 'bg-white dark:bg-slate-800 border-violet-300 dark:border-violet-700 text-violet-700 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 shadow-sm dark:shadow-none'
+          }`}
+        >
+          <Server className="w-3.5 h-3.5" />
+          C4
+          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+            fornecedor === 'c4' ? 'bg-violet-600/20 text-violet-950' : 'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400'
+          }`}>
+            {C4_CODES.size}
+          </span>
+        </button>
+
+        <button
+          onClick={() => { const next = taxa !== 'possui'; setTaxa(next ? 'possui' : ''); if (next) { setEcommerce(''); setFornecedor(''); setBetaActive(false); setTab('todas') } }}
+          className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
+            taxa === 'possui'
+              ? 'bg-purple-400 border-purple-500 text-purple-950 shadow-md shadow-purple-200/60 dark:shadow-none'
+              : 'bg-white dark:bg-slate-800 border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 shadow-sm dark:shadow-none'
+          }`}
+        >
+          <MapPin className="w-3.5 h-3.5" />
+          DESLOCAMENTO
+          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+            taxa === 'possui' ? 'bg-purple-600/20 text-purple-950' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+          }`}>
+            {TI_PARTNER_CODES.size + C4_CODES.size}
           </span>
         </button>
 
