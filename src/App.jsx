@@ -27,11 +27,11 @@ function buildUserProfile(supaUser) {
 
 function AppLayout({ user }) {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-100">
+    <div className="h-screen flex flex-col overflow-hidden bg-slate-100">
       <Header user={user} onLogout={() => supabase.auth.signOut()} />
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-h-0">
         <Sidebar />
-        <main className="flex-1 px-6 lg:px-8 py-6 overflow-x-hidden">
+        <main className="flex-1 px-6 lg:px-8 py-6 overflow-y-auto">
           <Outlet />
         </main>
       </div>
@@ -77,7 +77,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/tv/sefaz" element={<MonitoramentoPage fullscreen />} />
         <Route element={<AppLayout user={user} />}>
           <Route path="/" element={<Navigate to="/lojas" replace />} />
           <Route path="/lojas" element={<LojasPage />} />
