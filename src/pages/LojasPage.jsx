@@ -29,6 +29,40 @@ const selectBase = 'h-9 w-40 px-3 text-xs font-medium border rounded-lg cursor-p
 const selectIdle = 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600 shadow-sm dark:shadow-none'
 const selectActive = 'bg-brand-50 dark:bg-brand-900/30 border-brand-300 dark:border-brand-700 text-brand-700 dark:text-brand-400 shadow-sm shadow-brand-100/50 dark:shadow-none'
 
+function ChipSelect({ value, onChange, placeholder, opts, icon: Icon }) {
+  if (value) {
+    return (
+      <span className="h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-semibold border bg-sky-50 dark:bg-sky-900/20 border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-400">
+        <Icon className="w-3.5 h-3.5 text-sky-500 dark:text-sky-400" />
+        {value}
+        <button
+          onClick={e => { e.stopPropagation(); onChange('') }}
+          className="w-4 h-4 flex items-center justify-center rounded-full bg-sky-500 dark:bg-sky-600 text-white ml-0.5 hover:bg-sky-600 dark:hover:bg-sky-500 transition-colors"
+        >
+          <X className="w-2.5 h-2.5" />
+        </button>
+      </span>
+    )
+  }
+  return (
+    <div className="relative">
+      <Icon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 dark:text-slate-500 pointer-events-none" />
+      <select
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className={`${selectBase} pl-8 ${selectIdle}`}
+      >
+        <option value="">{placeholder}</option>
+        {opts.map(v =>
+          typeof v === 'string'
+            ? <option key={v} value={v}>{v}</option>
+            : <option key={v.value} value={v.value}>{v.label}</option>
+        )}
+      </select>
+    </div>
+  )
+}
+
 export default function LojasPage() {
   const [lojas, setLojas] = useState([])
   const [loading, setLoading] = useState(true)
@@ -45,10 +79,15 @@ export default function LojasPage() {
   useEffect(() => {
     async function fetchLojas() {
       setLoading(true)
-      const { data, error } = await supabase.from('lojas').select('*')
-      if (error) console.error('Erro ao buscar lojas:', error.message)
-      else setLojas(deduplicateAndSort(data))
-      setLoading(false)
+      try {
+        const { data, error } = await supabase.from('lojas').select('*')
+        if (error) console.error('Erro ao buscar lojas:', error.message)
+        else setLojas(deduplicateAndSort(data))
+      } catch (err) {
+        console.error('Erro ao buscar lojas:', err)
+      } finally {
+        setLoading(false)
+      }
     }
     fetchLojas()
   }, [])
@@ -115,40 +154,6 @@ export default function LojasPage() {
   }
 
   const tabLabel = betaActive ? 'lojas BETA' : ecommerce === 'ativo' ? 'lojas E-commerce' : fornecedor === 'ti_partner' ? 'lojas TI Partner' : fornecedor === 'c4' ? 'lojas C4' : taxa === 'possui' ? 'lojas com taxa' : tab === 'ativas' ? 'lojas ativas' : tab === 'fechadas' ? 'lojas fechadas' : 'lojas'
-
-  function ChipSelect({ value, onChange, placeholder, opts, icon: Icon }) {
-    if (value) {
-      return (
-        <span className="h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-semibold border bg-sky-50 dark:bg-sky-900/20 border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-400">
-          <Icon className="w-3.5 h-3.5 text-sky-500 dark:text-sky-400" />
-          {value}
-          <button
-            onClick={e => { e.stopPropagation(); onChange('') }}
-            className="w-4 h-4 flex items-center justify-center rounded-full bg-sky-500 dark:bg-sky-600 text-white ml-0.5 hover:bg-sky-600 dark:hover:bg-sky-500 transition-colors"
-          >
-            <X className="w-2.5 h-2.5" />
-          </button>
-        </span>
-      )
-    }
-    return (
-      <div className="relative">
-        <Icon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 dark:text-slate-500 pointer-events-none" />
-        <select
-          value={value}
-          onChange={e => onChange(e.target.value)}
-          className={`${selectBase} pl-8 ${selectIdle}`}
-        >
-          <option value="">{placeholder}</option>
-          {opts.map(v =>
-            typeof v === 'string'
-              ? <option key={v} value={v}>{v}</option>
-              : <option key={v.value} value={v.value}>{v.label}</option>
-          )}
-        </select>
-      </div>
-    )
-  }
 
   return (
     <>
