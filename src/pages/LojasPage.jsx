@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Search, FlaskConical, ShoppingCart, Building, Server, Map as MapIcon, Users, UserStar, Store, X, ChevronDown } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { TI_PARTNER_CODES, C4_CODES, BETA_CODES, ECOMMERCE_CODES, isEcommerce } from '../utils/storeMappings'
@@ -117,15 +118,19 @@ function ChipSelect({ value, onChange, placeholder, opts, icon: Icon }) {
 }
 
 export default function LojasPage() {
+  const [searchParams] = useSearchParams()
   const [lojas, setLojas] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [tab, setTab] = useState('ativas')
+  const [tab, setTab] = useState(() => searchParams.get('regional') ? 'todas' : 'ativas')
   const [fornecedor, setFornecedor] = useState('')
   const [ecommerce, setEcommerce] = useState('')
   const [betaActive, setBetaActive] = useState(false)
   const [page, setPage] = useState(1)
-  const [filters, setFilters] = useState({ uf: '', regional: '', diretor: '', unidade_negocio: '' })
+  const [filters, setFilters] = useState(() => {
+    const regional = searchParams.get('regional') || ''
+    return { uf: '', regional, diretor: '', unidade_negocio: '' }
+  })
   const [selected, setSelected] = useState(null)
   const [sort, setSort] = useState({ key: '', dir: 'asc' })
 
