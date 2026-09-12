@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { Search, FlaskConical, ShoppingCart, Building, Server, Map as MapIcon, Users, UserStar, Store, X, ChevronDown } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { TI_PARTNER_CODES, C4_CODES, BETA_CODES, ECOMMERCE_CODES, isEcommerce } from '../utils/storeMappings'
+import { getStoreStatus } from '../utils/storeStatus'
 import StoreTable from '../components/StoreTable'
 import StoreDrawer from '../components/StoreDrawer'
 import Pagination from '../components/Pagination'
@@ -186,8 +187,8 @@ export default function LojasPage() {
   const sorted = useMemo(() => {
     if (!sort.key) return filtered
     return [...filtered].sort((a, b) => {
-      const av = String(a[sort.key] || '').toLowerCase()
-      const bv = String(b[sort.key] || '').toLowerCase()
+      const av = sort.key === 'status' ? getStoreStatus(a).label.toLowerCase() : String(a[sort.key] || '').toLowerCase()
+      const bv = sort.key === 'status' ? getStoreStatus(b).label.toLowerCase() : String(b[sort.key] || '').toLowerCase()
       const cmp = av.localeCompare(bv, 'pt-BR', { numeric: true, sensitivity: 'base' })
       return sort.dir === 'asc' ? cmp : -cmp
     })

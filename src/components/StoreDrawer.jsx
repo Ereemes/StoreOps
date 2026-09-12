@@ -202,6 +202,13 @@ function EmailPopover({ loja }) {
 export default function StoreDrawer({ loja, onClose }) {
   const navigate = useNavigate()
 
+  useEffect(() => {
+    if (!loja) return
+    function handleKey(e) { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [loja, onClose])
+
   if (!loja) return null
 
   function goToContato(nome) {

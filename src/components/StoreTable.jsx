@@ -84,7 +84,7 @@ export default function StoreTable({ lojas, onSelect, sort = {}, onSort }) {
                     <span className="bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-400 text-[10px] font-bold px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-700/50">BETA</span>
                   )}
                   {isEcommerce(loja.codigo) && (
-                    <span className="bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 text-[10px] font-bold px-1.5 py-0.5 rounded border border-sky-200 dark:border-sky-700/50">E-COMMERCE</span>
+                    <span className="bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 text-[10px] font-bold px-1.5 py-0.5 rounded border border-sky-200 dark:border-sky-700/50 whitespace-nowrap">E-COMMERCE</span>
                   )}
                 </div>
                 <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 hidden sm:block truncate max-w-xs">{loja.razao_social}</div>
