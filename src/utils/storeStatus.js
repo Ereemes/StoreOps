@@ -23,5 +23,5 @@ export function getStoreStatus(loja) {
     return { label: 'Aberta', color: 'green' }
   }
 
-  return { label: 'Fora do Horário', color: 'orange' }
+  return { label: 'Fora do Horário', color: 'blue' }
 }

@@ -9,24 +9,18 @@ export default function Logo({ size = 36, showText = false, className = '' }) {
         xmlns="http://www.w3.org/2000/svg"
         className={`select-none ${className}`}
       >
-        <rect x="20" y="38" width="68" height="62" rx="10" fill="#DC2626" />
+        <rect x="22" y="46" width="76" height="54" rx="10" fill="#DC2626" />
+        <rect x="22" y="46" width="76" height="16" rx="10" fill="#EF4444" />
+        <rect x="22" y="56" width="76" height="6" fill="#EF4444" />
         <path
-          d="M40 38V28C40 17.507 48.507 9 59 9V9C69.493 9 78 17.507 78 28V38"
+          d="M36 46V36C36 22.745 46.745 12 60 12C73.255 12 84 22.745 84 36V46"
           stroke="#991B1B"
           strokeWidth="7"
           strokeLinecap="round"
           fill="none"
         />
-        <rect x="20" y="38" width="68" height="14" rx="10" fill="#EF4444" />
-        <rect x="20" y="48" width="68" height="4" fill="#EF4444" />
-        <path
-          d="M62 58L62 98L76 84L92 88L62 58Z"
-          fill="white"
-          stroke="#991B1B"
-          strokeWidth="3"
-          strokeLinejoin="round"
-        />
-        <line x1="54" y1="62" x2="54" y2="78" stroke="white" strokeWidth="3" strokeLinecap="round" opacity="0.4" />
+        <circle cx="60" cy="76" r="7" fill="#FCA5A5" />
+        <rect x="57" y="80" width="6" height="12" rx="3" fill="#FCA5A5" />
         <text x="118" y="82" fontFamily="Inter, system-ui, sans-serif" fontWeight="800" fontSize="52" fill="white">Store</text>
         <text x="270" y="82" fontFamily="Inter, system-ui, sans-serif" fontWeight="800" fontSize="52" fill="#F87171">Ops</text>
       </svg>
@@ -42,24 +36,18 @@ export default function Logo({ size = 36, showText = false, className = '' }) {
       xmlns="http://www.w3.org/2000/svg"
       className={`select-none ${className}`}
     >
-      <rect x="20" y="38" width="68" height="62" rx="10" fill="#DC2626" />
+      <rect x="22" y="46" width="76" height="54" rx="10" fill="#DC2626" />
+      <rect x="22" y="46" width="76" height="16" rx="10" fill="#EF4444" />
+      <rect x="22" y="56" width="76" height="6" fill="#EF4444" />
       <path
-        d="M40 38V28C40 17.507 48.507 9 59 9V9C69.493 9 78 17.507 78 28V38"
+        d="M36 46V36C36 22.745 46.745 12 60 12C73.255 12 84 22.745 84 36V46"
         stroke="#991B1B"
         strokeWidth="7"
         strokeLinecap="round"
         fill="none"
       />
-      <rect x="20" y="38" width="68" height="14" rx="10" fill="#EF4444" />
-      <rect x="20" y="48" width="68" height="4" fill="#EF4444" />
-      <path
-        d="M62 58L62 98L76 84L92 88L62 58Z"
-        fill="white"
-        stroke="#991B1B"
-        strokeWidth="3"
-        strokeLinejoin="round"
-      />
-      <line x1="54" y1="62" x2="54" y2="78" stroke="white" strokeWidth="3" strokeLinecap="round" opacity="0.4" />
+      <circle cx="60" cy="76" r="7" fill="#FCA5A5" />
+      <rect x="57" y="80" width="6" height="12" rx="3" fill="#FCA5A5" />
     </svg>
   )
 }

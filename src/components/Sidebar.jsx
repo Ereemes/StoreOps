@@ -1,17 +1,13 @@
 import { NavLink } from 'react-router-dom'
 import { Store, Phone, Users } from 'lucide-react'
 
-const MODULES = [
-  { to: '/lojas', label: 'Lojas', icon: Store },
-  { to: '/contatos', label: 'Contatos', icon: Phone },
-]
-
-const ADMIN_MODULES = [
-  { to: '/usuarios', label: 'Usuários', icon: Users },
-]
-
 export default function Sidebar({ isAdmin }) {
-  const modules = isAdmin ? [...MODULES, ...ADMIN_MODULES] : MODULES
+
+  const modules = [
+    { to: '/lojas', label: 'Lojas', icon: Store },
+    { to: '/contatos', label: 'Contatos', icon: Phone },
+    ...(isAdmin ? [{ to: '/usuarios', label: 'Usuários', icon: Users }] : []),
+  ]
 
   return (
     <aside className="hidden lg:flex w-56 flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-5 px-3 shrink-0">

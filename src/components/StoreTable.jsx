@@ -1,6 +1,6 @@
-import { Search } from 'lucide-react'
+import { Search, ChevronUp, ChevronDown } from 'lucide-react'
 import StatusBadge from './StatusBadge'
-import { isBeta, hasTaxa, isEcommerce, getFornecedor } from '../utils/storeMappings'
+import { isBeta, isEcommerce } from '../utils/storeMappings'
 
 function CellValue({ value, fallback = 'Não Informado' }) {
   if (!value || (typeof value === 'string' && !value.trim())) {
@@ -9,7 +9,23 @@ function CellValue({ value, fallback = 'Não Informado' }) {
   return value
 }
 
-export default function StoreTable({ lojas, onSelect }) {
+const COLUMNS = [
+  { key: 'codigo', label: 'Código', className: 'w-20' },
+  { key: 'nome_fantasia', label: 'Loja' },
+  { key: 'cidade', label: 'Cidade · UF', className: 'hidden md:table-cell' },
+  { key: 'regional', label: 'Regional', className: 'hidden lg:table-cell' },
+  { key: 'unidade_negocio', label: 'Unidade', className: 'hidden lg:table-cell' },
+  { key: 'status', label: 'Status' },
+]
+
+function SortIcon({ column, sort }) {
+  if (sort.key !== column) return <ChevronDown className="w-3 h-3 text-slate-300 dark:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+  return sort.dir === 'asc'
+    ? <ChevronUp className="w-3 h-3 text-brand-500" />
+    : <ChevronDown className="w-3 h-3 text-brand-500" />
+}
+
+export default function StoreTable({ lojas, onSelect, sort = {}, onSort }) {
   if (lojas.length === 0) {
     return (
       <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -22,17 +38,31 @@ export default function StoreTable({ lojas, onSelect }) {
     )
   }
 
+  function handleSort(key) {
+    if (!onSort) return
+    onSort(prev => prev.key === key
+      ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' }
+      : { key, dir: 'asc' }
+    )
+  }
+
   return (
     <div className="overflow-x-auto bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50">
-            <th className="text-left px-4 py-3 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-20">Código</th>
-            <th className="text-left px-4 py-3 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Loja</th>
-            <th className="text-left px-4 py-3 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden md:table-cell">Cidade · UF</th>
-            <th className="text-left px-4 py-3 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">Regional</th>
-            <th className="text-left px-4 py-3 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">Unidade</th>
-            <th className="text-left px-4 py-3 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+            {COLUMNS.map(col => (
+              <th
+                key={col.key}
+                onClick={() => handleSort(col.key)}
+                className={`text-left px-4 py-3 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer select-none group ${col.className || ''}`}
+              >
+                <span className="inline-flex items-center gap-1">
+                  {col.label}
+                  <SortIcon column={col.key} sort={sort} />
+                </span>
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
@@ -56,11 +86,12 @@ export default function StoreTable({ lojas, onSelect }) {
                   {isEcommerce(loja.codigo) && (
                     <span className="bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 text-[10px] font-bold px-1.5 py-0.5 rounded border border-sky-200 dark:border-sky-700/50">E-COMMERCE</span>
                   )}
-                  {hasTaxa(loja.codigo) && (
-                    <span className="bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-[11px] font-semibold px-2 py-0.5 rounded border border-purple-200 dark:border-purple-700/50">Deslocamento</span>
-                  )}
                 </div>
                 <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 hidden sm:block truncate max-w-xs">{loja.razao_social}</div>
+                <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 md:hidden lg:hidden">
+                  {(loja.cidade || loja.uf) && <span>{loja.cidade || ''}{loja.uf && ` · ${loja.uf}`}</span>}
+                  {loja.regional && <span className="hidden max-lg:inline">{(loja.cidade || loja.uf) ? ' — ' : ''}{loja.regional}</span>}
+                </div>
               </td>
               <td className="px-4 py-3.5 text-slate-600 dark:text-slate-400 hidden md:table-cell align-top whitespace-nowrap">
                 {loja.cidade || loja.uf

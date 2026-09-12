@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { Search, FlaskConical, ShoppingCart, Building, Server, MapPin, Map as MapIcon, Users, UserStar, Store, X, ChevronDown } from 'lucide-react'
+import { Search, FlaskConical, ShoppingCart, Building, Server, Map as MapIcon, Users, UserStar, Store, X, ChevronDown } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { TI_PARTNER_CODES, C4_CODES, BETA_CODES, ECOMMERCE_CODES, hasTaxa, isEcommerce } from '../utils/storeMappings'
+import { TI_PARTNER_CODES, C4_CODES, BETA_CODES, ECOMMERCE_CODES, isEcommerce } from '../utils/storeMappings'
 import StoreTable from '../components/StoreTable'
 import StoreDrawer from '../components/StoreDrawer'
 import Pagination from '../components/Pagination'
@@ -23,11 +23,7 @@ const TABS = [
   { key: 'todas', label: 'Todas' },
 ]
 
-const PER_PAGE = 10
-
-const selectBase = 'h-9 w-40 px-3 text-xs font-medium border rounded-lg cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 appearance-none bg-[length:16px] bg-[right_8px_center] bg-no-repeat'
-const selectIdle = 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600 shadow-sm dark:shadow-none'
-const selectActive = 'bg-brand-50 dark:bg-brand-900/30 border-brand-300 dark:border-brand-700 text-brand-700 dark:text-brand-400 shadow-sm shadow-brand-100/50 dark:shadow-none'
+const PER_PAGE = 15
 
 function ChipSelect({ value, onChange, placeholder, opts, icon: Icon }) {
   const [open, setOpen] = useState(false)
@@ -48,14 +44,14 @@ function ChipSelect({ value, onChange, placeholder, opts, icon: Icon }) {
 
   if (value) {
     return (
-      <span className="h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-semibold border bg-sky-50 dark:bg-sky-900/20 border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-400">
-        <Icon className="w-3.5 h-3.5 text-sky-500 dark:text-sky-400" />
+      <span className="h-8 inline-flex items-center gap-1.5 pl-3 pr-1.5 rounded-full text-xs font-semibold bg-brand-500/15 dark:bg-brand-400/15 text-brand-700 dark:text-brand-300 border border-brand-400/30 dark:border-brand-500/30">
+        <Icon className="w-3.5 h-3.5" />
         {value}
         <button
           onClick={e => { e.stopPropagation(); onChange('') }}
-          className="w-4 h-4 flex items-center justify-center rounded-full bg-sky-500 dark:bg-sky-600 text-white ml-0.5 hover:bg-sky-600 dark:hover:bg-sky-500 transition-colors"
+          className="w-5 h-5 flex items-center justify-center rounded-full bg-brand-500/20 dark:bg-brand-400/20 text-brand-600 dark:text-brand-300 ml-0.5 hover:bg-brand-500/40 dark:hover:bg-brand-400/30 transition-colors"
         >
-          <X className="w-2.5 h-2.5" />
+          <X className="w-3 h-3" />
         </button>
       </span>
     )
@@ -65,19 +61,19 @@ function ChipSelect({ value, onChange, placeholder, opts, icon: Icon }) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => { setOpen(!open); setQuery('') }}
-        className={`h-9 w-40 inline-flex items-center gap-2 px-3 rounded-lg text-xs font-medium border transition-all shadow-sm ${
+        className={`h-8 inline-flex items-center gap-1.5 px-3 rounded-full text-xs font-medium border transition-all ${
           open
-            ? 'bg-white dark:bg-slate-800 border-brand-400 dark:border-brand-500 ring-2 ring-brand-500/20'
-            : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'
+            ? 'bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-500 text-slate-700 dark:text-slate-200'
+            : 'bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
         }`}
       >
-        <Icon className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
-        <span className="flex-1 text-left text-slate-400 dark:text-slate-500">{placeholder}</span>
-        <ChevronDown className={`w-3 h-3 text-slate-400 dark:text-slate-500 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <Icon className="w-3.5 h-3.5 shrink-0" />
+        <span>{placeholder}</span>
+        <ChevronDown className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 mt-1.5 w-56 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg dark:shadow-black/30 z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+        <div className="absolute top-full left-0 mt-1.5 w-56 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg dark:shadow-black/30 z-50 overflow-hidden">
           {items.length > 6 && (
             <div className="p-2 border-b border-slate-100 dark:border-slate-700">
               <div className="relative">
@@ -103,7 +99,11 @@ function ChipSelect({ value, onChange, placeholder, opts, icon: Icon }) {
                   onClick={() => { onChange(item.value); setOpen(false); setQuery('') }}
                   className="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-brand-50 dark:hover:bg-slate-700 hover:text-brand-700 dark:hover:text-brand-400 transition-colors flex items-center gap-2"
                 >
-                  <Icon className="w-3 h-3 text-slate-300 dark:text-slate-600" />
+                  {value === item.value ? (
+                    <span className="w-3 h-3 rounded-full bg-brand-500 flex items-center justify-center"><span className="w-1.5 h-1.5 bg-white rounded-full" /></span>
+                  ) : (
+                    <Icon className="w-3 h-3 text-slate-300 dark:text-slate-600" />
+                  )}
                   {item.label}
                 </button>
               ))
@@ -121,12 +121,12 @@ export default function LojasPage() {
   const [search, setSearch] = useState('')
   const [tab, setTab] = useState('ativas')
   const [fornecedor, setFornecedor] = useState('')
-  const [taxa, setTaxa] = useState('')
   const [ecommerce, setEcommerce] = useState('')
   const [betaActive, setBetaActive] = useState(false)
   const [page, setPage] = useState(1)
   const [filters, setFilters] = useState({ uf: '', regional: '', diretor: '', unidade_negocio: '' })
   const [selected, setSelected] = useState(null)
+  const [sort, setSort] = useState({ key: '', dir: 'asc' })
 
   useEffect(() => {
     async function fetchLojas() {
@@ -165,14 +165,12 @@ export default function LojasPage() {
     if (fornecedor === 'ti_partner') result = result.filter(l => TI_PARTNER_CODES.has(Number(l.codigo)))
     else if (fornecedor === 'c4') result = result.filter(l => C4_CODES.has(Number(l.codigo)))
 
-    if (taxa === 'possui') result = result.filter(l => hasTaxa(l.codigo))
-
     if (ecommerce === 'ativo') result = result.filter(l => isEcommerce(l.codigo))
 
     if (search.trim()) {
       const q = search.toLowerCase().trim()
       result = result.filter(l =>
-        [l.nome_fantasia, l.codigo, l.cidade, l.cnpj, l.diretor, l.regional]
+        [l.nome_fantasia, l.codigo, l.cidade, l.cnpj, l.diretor, l.regional, l.unidade_negocio]
           .some(v => v && String(v).toLowerCase().includes(q))
       )
     }
@@ -183,180 +181,182 @@ export default function LojasPage() {
     if (filters.unidade_negocio) result = result.filter(l => l.unidade_negocio === filters.unidade_negocio)
 
     return result
-  }, [lojas, tab, search, filters, fornecedor, taxa, ecommerce, betaActive])
+  }, [lojas, tab, search, filters, fornecedor, ecommerce, betaActive])
 
-  const totalPages = Math.ceil(filtered.length / PER_PAGE)
+  const sorted = useMemo(() => {
+    if (!sort.key) return filtered
+    return [...filtered].sort((a, b) => {
+      const av = String(a[sort.key] || '').toLowerCase()
+      const bv = String(b[sort.key] || '').toLowerCase()
+      const cmp = av.localeCompare(bv, 'pt-BR', { numeric: true, sensitivity: 'base' })
+      return sort.dir === 'asc' ? cmp : -cmp
+    })
+  }, [filtered, sort])
+
+  const totalPages = Math.ceil(sorted.length / PER_PAGE)
   const currentPage = Math.min(page, totalPages || 1)
-  const paginated = filtered.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE)
+  const paginated = sorted.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE)
 
-  useEffect(() => { setPage(1) }, [tab, search, filters, fornecedor, taxa, ecommerce, betaActive])
+  useEffect(() => { setPage(1) }, [tab, search, filters, fornecedor, ecommerce, betaActive])
 
   function setFilter(key, value) {
     setFilters(prev => ({ ...prev, [key]: value }))
   }
 
-  const activeFilterCount = Object.values(filters).filter(Boolean).length + (fornecedor ? 1 : 0) + (taxa ? 1 : 0) + (ecommerce ? 1 : 0) + (betaActive ? 1 : 0)
+  const activeFilterCount = Object.values(filters).filter(Boolean).length + (fornecedor ? 1 : 0) + (ecommerce ? 1 : 0) + (betaActive ? 1 : 0)
 
   function clearAll() {
     setFilters({ uf: '', regional: '', diretor: '', unidade_negocio: '' })
     setFornecedor('')
-    setTaxa('')
     setEcommerce('')
     setBetaActive(false)
+    setTab('ativas')
   }
 
-  const tabLabel = betaActive ? 'lojas BETA' : ecommerce === 'ativo' ? 'lojas E-commerce' : fornecedor === 'ti_partner' ? 'lojas TI Partner' : fornecedor === 'c4' ? 'lojas C4' : taxa === 'possui' ? 'lojas com taxa' : tab === 'ativas' ? 'lojas ativas' : tab === 'fechadas' ? 'lojas fechadas' : 'lojas'
+  const tabLabel = betaActive ? 'lojas BETA' : ecommerce === 'ativo' ? 'lojas E-commerce' : fornecedor === 'ti_partner' ? 'lojas TI Partner' : fornecedor === 'c4' ? 'lojas C4' : tab === 'ativas' ? 'lojas ativas' : tab === 'fechadas' ? 'lojas fechadas' : 'lojas'
 
   return (
     <>
-      <div className="flex items-baseline justify-between mb-5">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Lojas</h2>
-          <p className="text-sm text-slate-400 dark:text-slate-500 mt-0.5">Gerencie todas as unidades da rede</p>
-        </div>
-        <span className="text-sm text-slate-500 dark:text-slate-400">
-          <span className="text-lg font-bold text-slate-800 dark:text-white">{filtered.length}</span>
-          <span className="ml-1">{tabLabel}</span>
-        </span>
+      <div className="mb-5">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+          Lojas
+          {(filters.uf || filters.regional || filters.diretor || filters.unidade_negocio || fornecedor || ecommerce === 'ativo' || betaActive) && (
+            <span className="text-slate-400 dark:text-slate-500 font-semibold text-lg ml-2">
+              {'› '}
+              {betaActive ? 'BETA' : ecommerce === 'ativo' ? 'E-Commerce' : fornecedor === 'ti_partner' ? 'TI Partner' : fornecedor === 'c4' ? 'C4' : ''}
+              {(betaActive || ecommerce === 'ativo' || fornecedor) && (filters.uf || filters.regional || filters.diretor || filters.unidade_negocio) ? ' · ' : ''}
+              {[filters.uf, filters.regional, filters.diretor, filters.unidade_negocio].filter(Boolean).join(' · ')}
+            </span>
+          )}
+        </h2>
+        <p className="text-sm text-slate-400 dark:text-slate-500 mt-0.5">Gerencie todas as unidades da rede</p>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
-        <div className="relative flex-1 max-w-2xl">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
-          <input
-            type="text"
-            placeholder="Buscar por nome, cidade, CNPJ, unidade, diretor..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full h-9 pl-10 pr-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 shadow-sm dark:shadow-none focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-shadow"
-          />
+      <div className="relative mb-4">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
+        <input
+          type="text"
+          placeholder="Buscar por nome, cidade, CNPJ, unidade, diretor..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="w-full h-9 pl-10 pr-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 shadow-sm dark:shadow-none focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-shadow"
+        />
+      </div>
+
+      <div className="space-y-2 py-2 px-1 mb-4">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mr-0.5">Localização</span>
+          <ChipSelect value={filters.uf} onChange={v => setFilter('uf', v)} placeholder="UF" opts={options.uf} icon={MapIcon} />
+          <ChipSelect value={filters.regional} onChange={v => setFilter('regional', v)} placeholder="Regional" opts={options.regional} icon={Users} />
+          <ChipSelect value={filters.diretor} onChange={v => setFilter('diretor', v)} placeholder="Diretor" opts={options.diretor} icon={UserStar} />
+          <ChipSelect value={filters.unidade_negocio} onChange={v => setFilter('unidade_negocio', v)} placeholder="Unidade" opts={options.unidade_negocio} icon={Store} />
         </div>
 
-        <div className="flex bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-0.5 shadow-sm dark:shadow-none shrink-0">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mr-0.5">Operação</span>
+
+          <button
+            onClick={() => { const next = ecommerce !== 'ativo'; setEcommerce(next ? 'ativo' : ''); if (next) { setFornecedor(''); setBetaActive(false); setTab('todas') } }}
+            className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
+              ecommerce === 'ativo'
+                ? 'bg-sky-400 border-sky-500 text-sky-950 shadow-md shadow-sky-200/60 dark:shadow-none'
+                : 'bg-white dark:bg-slate-800 border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 shadow-sm dark:shadow-none'
+            }`}
+          >
+            <ShoppingCart className="w-3.5 h-3.5" />
+            E-COMMERCE
+            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+              ecommerce === 'ativo' ? 'bg-sky-600/20 text-sky-950' : 'bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400'
+            }`}>
+              {ECOMMERCE_CODES.size}
+            </span>
+          </button>
+
+          <button
+            onClick={() => { const next = fornecedor !== 'ti_partner'; setFornecedor(next ? 'ti_partner' : ''); if (next) { setEcommerce(''); setBetaActive(false); setTab('todas') } }}
+            className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
+              fornecedor === 'ti_partner'
+                ? 'bg-emerald-400 border-emerald-500 text-emerald-950 shadow-md shadow-emerald-200/60 dark:shadow-none'
+                : 'bg-white dark:bg-slate-800 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 shadow-sm dark:shadow-none'
+            }`}
+          >
+            <Building className="w-3.5 h-3.5" />
+            TI PARTNER
+            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+              fornecedor === 'ti_partner' ? 'bg-emerald-600/20 text-emerald-950' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
+            }`}>
+              {TI_PARTNER_CODES.size}
+            </span>
+          </button>
+
+          <button
+            onClick={() => { const next = fornecedor !== 'c4'; setFornecedor(next ? 'c4' : ''); if (next) { setEcommerce(''); setBetaActive(false); setTab('todas') } }}
+            className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
+              fornecedor === 'c4'
+                ? 'bg-violet-400 border-violet-500 text-violet-950 shadow-md shadow-violet-200/60 dark:shadow-none'
+                : 'bg-white dark:bg-slate-800 border-violet-300 dark:border-violet-700 text-violet-700 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 shadow-sm dark:shadow-none'
+            }`}
+          >
+            <Server className="w-3.5 h-3.5" />
+            C4
+            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+              fornecedor === 'c4' ? 'bg-violet-600/20 text-violet-950' : 'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400'
+            }`}>
+              {C4_CODES.size}
+            </span>
+          </button>
+
+          <button
+            onClick={() => { setBetaActive(prev => !prev); if (!betaActive) { setFornecedor(''); setEcommerce(''); setTab('todas') } }}
+            className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
+              betaActive
+                ? 'bg-amber-400 border-amber-500 text-amber-950 shadow-md shadow-amber-200/60 dark:shadow-none'
+                : 'bg-white dark:bg-slate-800 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 shadow-sm dark:shadow-none'
+            }`}
+          >
+            <FlaskConical className="w-3.5 h-3.5" />
+            BETA
+            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+              betaActive ? 'bg-amber-600/20 text-amber-950' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
+            }`}>
+              {BETA_CODES.size}
+            </span>
+          </button>
+
+          {activeFilterCount > 0 && (
+            <button
+              onClick={clearAll}
+              className="h-9 inline-flex items-center gap-1 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer ml-auto"
+            >
+              <X className="w-3 h-3" />
+              Limpar filtros ({activeFilterCount})
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 mb-4 pb-1">
+        <div className="flex">
           {TABS.map(({ key, label }) => (
             <button
               key={key}
               onClick={() => setTab(key)}
-              className={`h-8 px-4 rounded-md text-xs font-semibold transition-all ${
+              className={`px-4 py-2 text-xs font-semibold transition-all border-b-2 -mb-px ${
                 tab === key
-                  ? 'bg-brand-600 text-white shadow-sm'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700'
+                  ? 'border-brand-500 text-slate-900 dark:text-white'
+                  : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
               }`}
             >
               {label}
-              <span className={`ml-1.5 ${tab === key ? 'text-brand-200' : 'text-slate-400 dark:text-slate-500'}`}>
+              <span className={`ml-1.5 ${tab === key ? 'text-brand-500' : 'text-slate-400 dark:text-slate-500'}`}>
                 {tabCounts[key]}
               </span>
             </button>
           ))}
         </div>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2.5 py-2 px-1 mb-4">
-        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mr-0.5">Localização</span>
-        <ChipSelect value={filters.uf} onChange={v => setFilter('uf', v)} placeholder="UF" opts={options.uf} icon={MapIcon} />
-        <ChipSelect value={filters.regional} onChange={v => setFilter('regional', v)} placeholder="Regional" opts={options.regional} icon={Users} />
-        <ChipSelect value={filters.diretor} onChange={v => setFilter('diretor', v)} placeholder="Diretor" opts={options.diretor} icon={UserStar} />
-        <ChipSelect value={filters.unidade_negocio} onChange={v => setFilter('unidade_negocio', v)} placeholder="Unidade" opts={options.unidade_negocio} icon={Store} />
-
-        <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1 hidden sm:block" />
-
-        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mr-0.5">Operação</span>
-
-        <button
-          onClick={() => { const next = ecommerce !== 'ativo'; setEcommerce(next ? 'ativo' : ''); if (next) { setFornecedor(''); setTaxa(''); setBetaActive(false); setTab('todas') } }}
-          className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
-            ecommerce === 'ativo'
-              ? 'bg-sky-400 border-sky-500 text-sky-950 shadow-md shadow-sky-200/60 dark:shadow-none'
-              : 'bg-white dark:bg-slate-800 border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 shadow-sm dark:shadow-none'
-          }`}
-        >
-          <ShoppingCart className="w-3.5 h-3.5" />
-          E-COMMERCE
-          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-            ecommerce === 'ativo' ? 'bg-sky-600/20 text-sky-950' : 'bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400'
-          }`}>
-            {ECOMMERCE_CODES.size}
-          </span>
-        </button>
-
-        <button
-          onClick={() => { const next = fornecedor !== 'ti_partner'; setFornecedor(next ? 'ti_partner' : ''); if (next) { setEcommerce(''); setTaxa(''); setBetaActive(false); setTab('todas') } }}
-          className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
-            fornecedor === 'ti_partner'
-              ? 'bg-emerald-400 border-emerald-500 text-emerald-950 shadow-md shadow-emerald-200/60 dark:shadow-none'
-              : 'bg-white dark:bg-slate-800 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 shadow-sm dark:shadow-none'
-          }`}
-        >
-          <Building className="w-3.5 h-3.5" />
-          TI PARTNER
-          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-            fornecedor === 'ti_partner' ? 'bg-emerald-600/20 text-emerald-950' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
-          }`}>
-            {TI_PARTNER_CODES.size}
-          </span>
-        </button>
-
-        <button
-          onClick={() => { const next = fornecedor !== 'c4'; setFornecedor(next ? 'c4' : ''); if (next) { setEcommerce(''); setTaxa(''); setBetaActive(false); setTab('todas') } }}
-          className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
-            fornecedor === 'c4'
-              ? 'bg-violet-400 border-violet-500 text-violet-950 shadow-md shadow-violet-200/60 dark:shadow-none'
-              : 'bg-white dark:bg-slate-800 border-violet-300 dark:border-violet-700 text-violet-700 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 shadow-sm dark:shadow-none'
-          }`}
-        >
-          <Server className="w-3.5 h-3.5" />
-          C4
-          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-            fornecedor === 'c4' ? 'bg-violet-600/20 text-violet-950' : 'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400'
-          }`}>
-            {C4_CODES.size}
-          </span>
-        </button>
-
-        <button
-          onClick={() => { const next = taxa !== 'possui'; setTaxa(next ? 'possui' : ''); if (next) { setEcommerce(''); setFornecedor(''); setBetaActive(false); setTab('todas') } }}
-          className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
-            taxa === 'possui'
-              ? 'bg-purple-400 border-purple-500 text-purple-950 shadow-md shadow-purple-200/60 dark:shadow-none'
-              : 'bg-white dark:bg-slate-800 border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 shadow-sm dark:shadow-none'
-          }`}
-        >
-          <MapPin className="w-3.5 h-3.5" />
-          DESLOCAMENTO
-          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-            taxa === 'possui' ? 'bg-purple-600/20 text-purple-950' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
-          }`}>
-            {TI_PARTNER_CODES.size + C4_CODES.size}
-          </span>
-        </button>
-
-        <button
-          onClick={() => { setBetaActive(prev => !prev); if (!betaActive) { setFornecedor(''); setTaxa(''); setEcommerce(''); setTab('todas') } }}
-          className={`h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
-            betaActive
-              ? 'bg-amber-400 border-amber-500 text-amber-950 shadow-md shadow-amber-200/60 dark:shadow-none'
-              : 'bg-white dark:bg-slate-800 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 shadow-sm dark:shadow-none'
-          }`}
-        >
-          <FlaskConical className="w-3.5 h-3.5" />
-          BETA
-          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-            betaActive ? 'bg-amber-600/20 text-amber-950' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
-          }`}>
-            {BETA_CODES.size}
-          </span>
-        </button>
-
-        {activeFilterCount > 0 && (
-          <button
-            onClick={clearAll}
-            className="h-9 inline-flex items-center gap-1 px-3 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer ml-auto"
-          >
-            <X className="w-3 h-3" />
-            Limpar filtros ({activeFilterCount})
-          </button>
-        )}
+        <span className="text-xs text-slate-400 dark:text-slate-500 hidden sm:inline">
+          Exibindo <span className="text-slate-700 dark:text-slate-200 font-semibold">{filtered.length}</span> {tabLabel}
+        </span>
       </div>
 
       {loading ? (
@@ -365,13 +365,15 @@ export default function LojasPage() {
           <p className="mt-4 text-slate-500 dark:text-slate-400 text-sm">Carregando lojas...</p>
         </div>
       ) : (
-        <>
-          <StoreTable lojas={paginated} onSelect={setSelected} />
+        <div key={`${tab}-${fornecedor}-${ecommerce}-${betaActive}-${filters.uf}-${filters.regional}-${filters.diretor}-${filters.unidade_negocio}`} className="animate-fade-in">
+          <StoreTable lojas={paginated} onSelect={setSelected} sort={sort} onSort={setSort} />
           <Pagination current={currentPage} total={totalPages} onPageChange={setPage} />
-          <p className="text-center text-[11px] text-slate-400 dark:text-slate-500 mt-2">
-            {(currentPage - 1) * PER_PAGE + 1}–{Math.min(currentPage * PER_PAGE, filtered.length)} de {filtered.length}
-          </p>
-        </>
+          {filtered.length > 0 && (
+            <p className="text-center text-[11px] text-slate-400 dark:text-slate-500 mt-2">
+              {(currentPage - 1) * PER_PAGE + 1}–{Math.min(currentPage * PER_PAGE, filtered.length)} de {filtered.length}
+            </p>
+          )}
+        </div>
       )}
 
       <StoreDrawer loja={selected} onClose={() => setSelected(null)} />
