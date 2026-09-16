@@ -163,10 +163,10 @@ export default function LojasPage() {
   const filtered = useMemo(() => {
     let result = lojas
 
-    if (betaActive) return result.filter(l => BETA_CODES.has(Number(l.codigo)))
-
     if (tab === 'ativas') result = result.filter(l => l.status !== 'Fechada')
     else if (tab === 'fechadas') result = result.filter(l => l.status === 'Fechada')
+
+    if (betaActive) result = result.filter(l => BETA_CODES.has(Number(l.codigo)))
 
     if (fornecedor === 'ti_partner') result = result.filter(l => TI_PARTNER_CODES.has(Number(l.codigo)))
     else if (fornecedor === 'c4') result = result.filter(l => C4_CODES.has(Number(l.codigo)))
