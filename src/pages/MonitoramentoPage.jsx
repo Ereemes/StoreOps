@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { Minimize2 } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
 const REFRESH_INTERVAL = 30000
@@ -154,7 +154,7 @@ function DarkBrazilMap({ nfceServices, checks, statusMap }) {
   )
 }
 
-export default function MonitoramentoPage({ fullscreen }) {
+export default function MonitoramentoPage({ fullscreen, onLogout }) {
   const [services, setServices] = useState([])
   const [checks, setChecks] = useState([])
   const [loading, setLoading] = useState(true)
@@ -323,9 +323,12 @@ export default function MonitoramentoPage({ fullscreen }) {
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <span style={{ color: '#475569', fontSize: 30, fontWeight: 200, fontFamily: "'JetBrains Mono', monospace" }}>{clockStr}</span>
-        <button onClick={() => window.close()} style={{ background: 'none', border: '1px solid #1e293b', borderRadius: 8, padding: '6px 8px', cursor: 'pointer', display: 'flex', alignItems: 'center' }} title="Fechar">
-          <Minimize2 style={{ width: 16, height: 16, color: '#475569' }} />
-        </button>
+        {onLogout && (
+          <button onClick={onLogout} style={{ background: 'none', border: '1px solid #1e293b', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }} title="Sair">
+            <LogOut style={{ width: 14, height: 14, color: '#94a3b8' }} />
+            <span style={{ color: '#94a3b8', fontSize: 13, fontWeight: 500 }}>Sair</span>
+          </button>
+        )}
       </div>
     </header>
   ) : null
@@ -472,11 +475,11 @@ export default function MonitoramentoPage({ fullscreen }) {
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '8px 12px' }}>
-        <div style={{ width: '100%', flex: 1, display: 'flex', alignItems: 'center' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '8px 12px', minHeight: 0, overflow: 'hidden' }}>
+        <div style={{ width: '100%', flex: 1, display: 'flex', alignItems: 'center', minHeight: 0, overflow: 'hidden' }}>
           <DarkBrazilMap nfceServices={nfceServices} checks={checks} statusMap={statusMap} />
         </div>
-        <div style={{ display: 'flex', gap: 28, padding: '12px 28px', borderRadius: 12, background: '#0f172a', border: '1px solid #1e293b' }}>
+        <div style={{ display: 'flex', gap: 28, padding: '12px 28px', borderRadius: 12, background: '#0f172a', border: '1px solid #1e293b', flexShrink: 0 }}>
           {[
             { c: '#34d399', l: 'Operacional' },
             { c: '#fbbf24', l: 'Degradado' },

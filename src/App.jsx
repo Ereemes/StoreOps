@@ -79,7 +79,7 @@ export default function App() {
   if (user.role === 'monitor') {
     return (
       <BrowserRouter>
-        <MonitoramentoPage fullscreen />
+        <MonitoramentoPage fullscreen onLogout={() => supabase.auth.signOut()} />
       </BrowserRouter>
     )
   }
