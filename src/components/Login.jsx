@@ -154,7 +154,7 @@ export default function Login() {
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Grupo Oscar · Painel de Gestão</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} autoComplete="off" className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">E-mail</label>
                 <input
@@ -162,6 +162,7 @@ export default function Login() {
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="usuario@grupooscar.com.br"
+                  autoComplete="off"
                   className="w-full h-10 px-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 transition-all"
                 />
               </div>
@@ -174,6 +175,7 @@ export default function Login() {
                     value={senha}
                     onChange={e => setSenha(e.target.value)}
                     placeholder="••••••••"
+                    autoComplete="new-password"
                     className="w-full h-10 px-3.5 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 transition-all"
                   />
                   <button
