@@ -54,7 +54,14 @@ export default function App() {
   const [recoveryMode, setRecoveryMode] = useState(false)
 
   useEffect(() => {
+    const hash = window.location.hash
+    const isInvite = hash.includes('type=invite')
+    const isRecovery = hash.includes('type=recovery')
+
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session && (isInvite || isRecovery)) {
+        setRecoveryMode(true)
+      }
       setUser(session ? buildUserProfile(session.user) : null)
       setAuthLoading(false)
     })
