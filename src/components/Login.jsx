@@ -1,6 +1,9 @@
-import { useState } from 'react'
-import { Eye, EyeOff, LogIn, ArrowLeft, Mail } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { Eye, EyeOff, LogIn, ArrowLeft, Mail, ShieldAlert } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+
+const MAX_ATTEMPTS = 5
+const LOCKOUT_SECONDS = 60
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -10,9 +13,27 @@ export default function Login() {
   const [error, setError] = useState('')
   const [resetMode, setResetMode] = useState(false)
   const [resetSent, setResetSent] = useState(false)
+  const [lockout, setLockout] = useState(0)
+  const attemptsRef = useRef(0)
+  const lockoutTimerRef = useRef(null)
+
+  function startLockout() {
+    setLockout(LOCKOUT_SECONDS)
+    lockoutTimerRef.current = setInterval(() => {
+      setLockout(prev => {
+        if (prev <= 1) {
+          clearInterval(lockoutTimerRef.current)
+          attemptsRef.current = 0
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
 
   async function handleSubmit(e) {
     e.preventDefault()
+    if (lockout > 0) return
     if (!email.trim() || !senha.trim()) {
       setError('Preencha todos os campos.')
       return
@@ -28,6 +49,12 @@ export default function Login() {
     setLoading(false)
 
     if (authError) {
+      attemptsRef.current += 1
+      if (attemptsRef.current >= MAX_ATTEMPTS) {
+        startLockout()
+        setError(`Muitas tentativas. Aguarde ${LOCKOUT_SECONDS} segundos.`)
+        return
+      }
       const knownErrors = {
         'Invalid login credentials': 'E-mail ou senha incorretos.',
         'Email not confirmed': 'E-mail ainda não confirmado. Verifique sua caixa de entrada.',
@@ -191,6 +218,15 @@ export default function Login() {
                 <p className="text-xs text-red-500 font-medium">{error}</p>
               )}
 
+              {lockout > 0 && (
+                <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                  <ShieldAlert className="w-4 h-4 text-amber-500 shrink-0" />
+                  <p className="text-xs text-amber-700 dark:text-amber-300 font-medium">
+                    Conta bloqueada temporariamente. Tente novamente em {lockout}s.
+                  </p>
+                </div>
+              )}
+
               <div className="flex items-center justify-end pt-1">
                 <button
                   type="button"
@@ -203,7 +239,7 @@ export default function Login() {
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || lockout > 0}
                 className="w-full h-10 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-sm shadow-red-200 dark:shadow-none transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed mt-2"
               >
                 {loading ? (

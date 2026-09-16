@@ -9,8 +9,25 @@ const supabaseAdmin = createClient(
 
 const ALLOWED_ORIGINS = [
   'https://storeops-alpha.vercel.app',
-  'http://localhost:5173',
 ]
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
+const RATE_LIMIT = 30
+const RATE_WINDOW = 60_000
+
+function isRateLimited(key: string): boolean {
+  const now = Date.now()
+  const entry = rateLimitMap.get(key)
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(key, { count: 1, resetAt: now + RATE_WINDOW })
+    return false
+  }
+  entry.count++
+  return entry.count > RATE_LIMIT
+}
 
 function corsHeaders(req?: Request) {
   const origin = req?.headers.get('origin') || ''
@@ -27,11 +44,15 @@ function json(data: unknown, status = 200, req?: Request) {
   return new Response(JSON.stringify(data), { status, headers: corsHeaders(req) })
 }
 
+function sanitize(input: string, maxLen: number): string {
+  return input.replace(/[<>"'&]/g, '').trim().substring(0, maxLen)
+}
+
 async function getCallerEmail(req: Request): Promise<string | null> {
   const authHeader = req.headers.get('authorization')
-  if (!authHeader) return null
+  if (!authHeader?.startsWith('Bearer ')) return null
 
-  const token = authHeader.replace('Bearer ', '')
+  const token = authHeader.substring(7)
   const { data: { user } } = await supabaseAdmin.auth.getUser(token)
   return user?.email?.toLowerCase() || null
 }
@@ -42,9 +63,14 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
+    if (isRateLimited(clientIp)) {
+      return json({ error: 'Muitas requisições. Tente novamente em breve.' }, 429, req)
+    }
+
     const callerEmail = await getCallerEmail(req)
     if (!callerEmail || !ADMIN_EMAILS.includes(callerEmail)) {
-      return json({ error: 'Acesso negado. Apenas administradores.' }, 403, req)
+      return json({ error: 'Acesso negado.' }, 403, req)
     }
 
     if (req.method === 'GET') {
@@ -67,12 +93,12 @@ Deno.serve(async (req) => {
       const body = await req.json()
       const { email, nome, cargo } = body
 
-      if (!email) {
-        return json({ error: 'E-mail é obrigatório.' }, 400, req)
+      if (!email || !EMAIL_RE.test(email)) {
+        return json({ error: 'E-mail inválido.' }, 400, req)
       }
 
-      const safeNome = (nome || '').replace(/[<>"'&]/g, '').substring(0, 100)
-      const safeCargo = (cargo || 'Operador').replace(/[<>"'&]/g, '').substring(0, 50)
+      const safeNome = sanitize(nome || '', 100)
+      const safeCargo = sanitize(cargo || 'Operador', 50)
 
       const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
         data: { nome: safeNome, cargo: safeCargo },
@@ -100,16 +126,24 @@ Deno.serve(async (req) => {
       const body = await req.json()
       const { id, nome, cargo, password } = body
 
-      if (!id) return json({ error: 'ID do usuário é obrigatório.' }, 400, req)
+      if (!id || !UUID_RE.test(id)) {
+        return json({ error: 'ID inválido.' }, 400, req)
+      }
 
-      const safeNome = (nome || '').replace(/[<>"'&]/g, '').substring(0, 100)
-      const safeCargo = (cargo || '').replace(/[<>"'&]/g, '').substring(0, 50)
+      const safeNome = sanitize(nome || '', 100)
+      const safeCargo = sanitize(cargo || '', 50)
 
       const updates: Record<string, unknown> = {
         user_metadata: { nome: safeNome, cargo: safeCargo },
       }
 
-      if (password && password.length >= 8) {
+      if (password) {
+        if (password.length < 8) {
+          return json({ error: 'A senha deve ter pelo menos 8 caracteres.' }, 400, req)
+        }
+        if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+          return json({ error: 'A senha deve conter maiúscula, minúscula e número.' }, 400, req)
+        }
         updates.password = password
       }
 
@@ -123,7 +157,9 @@ Deno.serve(async (req) => {
       const body = await req.json()
       const { id } = body
 
-      if (!id) return json({ error: 'ID do usuário é obrigatório.' }, 400, req)
+      if (!id || !UUID_RE.test(id)) {
+        return json({ error: 'ID inválido.' }, 400, req)
+      }
 
       const { data: { user } } = await supabaseAdmin.auth.admin.getUserById(id)
       if (user?.email && ADMIN_EMAILS.includes(user.email.toLowerCase())) {

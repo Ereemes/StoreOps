@@ -1,6 +1,55 @@
-import { useState } from 'react'
-import { Eye, EyeOff, KeyRound, CheckCircle } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Eye, EyeOff, KeyRound, CheckCircle, Check, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+
+function PasswordStrength({ password }) {
+  const checks = useMemo(() => [
+    { label: 'Mínimo 8 caracteres', ok: password.length >= 8 },
+    { label: 'Letra maiúscula', ok: /[A-Z]/.test(password) },
+    { label: 'Letra minúscula', ok: /[a-z]/.test(password) },
+    { label: 'Número', ok: /[0-9]/.test(password) },
+    { label: 'Caractere especial', ok: /[^A-Za-z0-9]/.test(password) },
+  ], [password])
+
+  const score = checks.filter(c => c.ok).length
+
+  if (!password) return null
+
+  return (
+    <div className="space-y-2 mt-2">
+      <div className="flex gap-1">
+        {[1, 2, 3, 4, 5].map(i => (
+          <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${
+            i <= score
+              ? score <= 2 ? 'bg-red-400' : score <= 3 ? 'bg-amber-400' : 'bg-green-400'
+              : 'bg-slate-200 dark:bg-slate-700'
+          }`} />
+        ))}
+      </div>
+      <div className="grid grid-cols-2 gap-1">
+        {checks.map(({ label, ok }) => (
+          <div key={label} className="flex items-center gap-1.5">
+            {ok
+              ? <Check className="w-3 h-3 text-green-500" />
+              : <X className="w-3 h-3 text-slate-300 dark:text-slate-600" />
+            }
+            <span className={`text-[10px] ${ok ? 'text-green-600 dark:text-green-400' : 'text-slate-400 dark:text-slate-500'}`}>
+              {label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function validatePassword(password) {
+  if (password.length < 8) return 'A senha deve ter pelo menos 8 caracteres.'
+  if (!/[A-Z]/.test(password)) return 'A senha deve conter pelo menos uma letra maiúscula.'
+  if (!/[a-z]/.test(password)) return 'A senha deve conter pelo menos uma letra minúscula.'
+  if (!/[0-9]/.test(password)) return 'A senha deve conter pelo menos um número.'
+  return null
+}
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
@@ -14,8 +63,9 @@ export default function ResetPasswordPage() {
     e.preventDefault()
     setError('')
 
-    if (password.length < 8) {
-      setError('A senha deve ter pelo menos 8 caracteres.')
+    const validationError = validatePassword(password)
+    if (validationError) {
+      setError(validationError)
       return
     }
     if (password !== confirm) {
@@ -92,6 +142,7 @@ export default function ResetPasswordPage() {
                         {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
+                    <PasswordStrength password={password} />
                   </div>
 
                   <div>
