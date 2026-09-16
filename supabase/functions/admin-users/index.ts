@@ -7,17 +7,24 @@ const supabaseAdmin = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 )
 
-function corsHeaders() {
+const ALLOWED_ORIGINS = [
+  'https://storeops-alpha.vercel.app',
+  'http://localhost:5173',
+]
+
+function corsHeaders(req?: Request) {
+  const origin = req?.headers.get('origin') || ''
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]
   return {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
     'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
     'Content-Type': 'application/json',
   }
 }
 
-function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), { status, headers: corsHeaders() })
+function json(data: unknown, status = 200, req?: Request) {
+  return new Response(JSON.stringify(data), { status, headers: corsHeaders(req) })
 }
 
 async function getCallerEmail(req: Request): Promise<string | null> {
@@ -31,13 +38,13 @@ async function getCallerEmail(req: Request): Promise<string | null> {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: corsHeaders() })
+    return new Response(null, { status: 204, headers: corsHeaders(req) })
   }
 
   try {
     const callerEmail = await getCallerEmail(req)
     if (!callerEmail || !ADMIN_EMAILS.includes(callerEmail)) {
-      return json({ error: 'Acesso negado. Apenas administradores.' }, 403)
+      return json({ error: 'Acesso negado. Apenas administradores.' }, 403, req)
     }
 
     if (req.method === 'GET') {
@@ -53,7 +60,7 @@ Deno.serve(async (req) => {
         last_sign_in_at: u.last_sign_in_at,
       }))
 
-      return json({ users: mapped })
+      return json({ users: mapped }, 200, req)
     }
 
     if (req.method === 'POST') {
@@ -61,16 +68,19 @@ Deno.serve(async (req) => {
       const { email, nome, cargo } = body
 
       if (!email) {
-        return json({ error: 'E-mail é obrigatório.' }, 400)
+        return json({ error: 'E-mail é obrigatório.' }, 400, req)
       }
 
+      const safeNome = (nome || '').replace(/[<>"'&]/g, '').substring(0, 100)
+      const safeCargo = (cargo || 'Operador').replace(/[<>"'&]/g, '').substring(0, 50)
+
       const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-        data: { nome: nome || '', cargo: cargo || 'Operador' },
+        data: { nome: safeNome, cargo: safeCargo },
       })
 
       if (error) {
         if (error.message.includes('already been registered')) {
-          return json({ error: 'Este e-mail já está cadastrado.' }, 409)
+          return json({ error: 'Este e-mail já está cadastrado.' }, 409, req)
         }
         throw error
       }
@@ -83,48 +93,51 @@ Deno.serve(async (req) => {
           cargo: data.user.user_metadata?.cargo || '',
         },
         invited: true,
-      }, 201)
+      }, 201, req)
     }
 
     if (req.method === 'PATCH') {
       const body = await req.json()
       const { id, nome, cargo, password } = body
 
-      if (!id) return json({ error: 'ID do usuário é obrigatório.' }, 400)
+      if (!id) return json({ error: 'ID do usuário é obrigatório.' }, 400, req)
+
+      const safeNome = (nome || '').replace(/[<>"'&]/g, '').substring(0, 100)
+      const safeCargo = (cargo || '').replace(/[<>"'&]/g, '').substring(0, 50)
 
       const updates: Record<string, unknown> = {
-        user_metadata: { nome, cargo },
+        user_metadata: { nome: safeNome, cargo: safeCargo },
       }
 
-      if (password && password.length >= 6) {
+      if (password && password.length >= 8) {
         updates.password = password
       }
 
       const { error } = await supabaseAdmin.auth.admin.updateUserById(id, updates)
       if (error) throw error
 
-      return json({ ok: true })
+      return json({ ok: true }, 200, req)
     }
 
     if (req.method === 'DELETE') {
       const body = await req.json()
       const { id } = body
 
-      if (!id) return json({ error: 'ID do usuário é obrigatório.' }, 400)
+      if (!id) return json({ error: 'ID do usuário é obrigatório.' }, 400, req)
 
       const { data: { user } } = await supabaseAdmin.auth.admin.getUserById(id)
       if (user?.email && ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-        return json({ error: 'Não é possível excluir o administrador.' }, 403)
+        return json({ error: 'Não é possível excluir o administrador.' }, 403, req)
       }
 
       const { error } = await supabaseAdmin.auth.admin.deleteUser(id)
       if (error) throw error
 
-      return json({ ok: true })
+      return json({ ok: true }, 200, req)
     }
 
-    return json({ error: 'Método não suportado.' }, 405)
+    return json({ error: 'Método não suportado.' }, 405, req)
   } catch (err) {
-    return json({ error: err.message || 'Erro interno.' }, 500)
+    return json({ error: 'Erro interno.' }, 500, req)
   }
 })

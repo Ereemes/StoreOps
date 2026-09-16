@@ -6,7 +6,6 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [showPass, setShowPass] = useState(false)
-  const [lembrar, setLembrar] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [resetMode, setResetMode] = useState(false)
@@ -192,16 +191,7 @@ export default function Login() {
                 <p className="text-xs text-red-500 font-medium">{error}</p>
               )}
 
-              <div className="flex items-center justify-between pt-1">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={lembrar}
-                    onChange={e => setLembrar(e.target.checked)}
-                    className="w-3.5 h-3.5 rounded border-slate-300 dark:border-slate-600 text-red-600 focus:ring-red-500/20"
-                  />
-                  <span className="text-xs text-slate-500 dark:text-slate-400">Lembrar de mim</span>
-                </label>
+              <div className="flex items-center justify-end pt-1">
                 <button
                   type="button"
                   onClick={() => { setResetMode(true); setError('') }}
