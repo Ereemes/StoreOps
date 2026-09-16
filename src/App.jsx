@@ -9,6 +9,7 @@ import LojasPage from './pages/LojasPage'
 import MonitoramentoPage from './pages/MonitoramentoPage'
 import ContatosPage from './pages/ContatosPage'
 import UsuariosPage from './pages/UsuariosPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 
 const ADMIN_EMAILS = ['admin.ti@grupooscar.com.br']
 
@@ -50,6 +51,7 @@ function AppLayout({ user, dark, toggleTheme }) {
 export default function App() {
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
+  const [recoveryMode, setRecoveryMode] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -57,7 +59,10 @@ export default function App() {
       setAuthLoading(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setRecoveryMode(true)
+      }
       setUser(session ? buildUserProfile(session.user) : null)
     })
 
@@ -73,6 +78,8 @@ export default function App() {
       </div>
     )
   }
+
+  if (recoveryMode) return <ResetPasswordPage />
 
   if (!user) return <Login />
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { UserPlus, Pencil, Trash2, X, Eye, EyeOff, RefreshCw, Shield } from 'lucide-react'
+import { UserPlus, Pencil, Trash2, X, Eye, EyeOff, RefreshCw, Shield, Mail, KeyRound } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
 const FUNC_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users`
@@ -37,6 +37,7 @@ function UserModal({ user, onClose, onSaved }) {
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   function set(key, val) {
     setForm(f => ({ ...f, [key]: val }))
@@ -45,20 +46,23 @@ function UserModal({ user, onClose, onSaved }) {
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
+    setSuccess('')
     setLoading(true)
 
     try {
       if (isEdit) {
         await apiFetch('PATCH', { id: user.id, nome: form.nome, cargo: form.cargo, password: form.password || undefined })
+        onSaved()
       } else {
-        if (!form.email || !form.password) {
-          setError('E-mail e senha são obrigatórios.')
+        if (!form.email) {
+          setError('E-mail é obrigatório.')
           setLoading(false)
           return
         }
-        await apiFetch('POST', form)
+        await apiFetch('POST', { email: form.email, nome: form.nome, cargo: form.cargo })
+        setSuccess(`Convite enviado para ${form.email}`)
+        setTimeout(() => onSaved(), 1500)
       }
-      onSaved()
     } catch (err) {
       setError(err.message)
     } finally {
@@ -73,7 +77,7 @@ function UserModal({ user, onClose, onSaved }) {
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-md animate-fade-in">
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-              {isEdit ? 'Editar Usuário' : 'Novo Usuário'}
+              {isEdit ? 'Editar Usuário' : 'Convidar Usuário'}
             </h3>
             <button onClick={onClose} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
               <X className="w-4 h-4 text-slate-400" />
@@ -81,6 +85,15 @@ function UserModal({ user, onClose, onSaved }) {
           </div>
 
           <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+            {!isEdit && (
+              <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <Mail className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+                <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+                  O usuário receberá um e-mail com link para definir a própria senha. Você não precisa criar uma senha.
+                </p>
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">E-mail</label>
               <input
@@ -121,29 +134,37 @@ function UserModal({ user, onClose, onSaved }) {
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
-                {isEdit ? 'Nova Senha (deixe vazio para manter)' : 'Senha'}
-              </label>
-              <div className="relative">
-                <input
-                  type={showPass ? 'text' : 'password'}
-                  value={form.password}
-                  onChange={e => set('password', e.target.value)}
-                  placeholder={isEdit ? '••••••••' : 'Mínimo 6 caracteres'}
-                  className="w-full h-10 px-3.5 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPass(p => !p)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-                >
-                  {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+            {isEdit && (
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
+                  Nova Senha (deixe vazio para manter)
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPass ? 'text' : 'password'}
+                    value={form.password}
+                    onChange={e => set('password', e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full h-10 px-3.5 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPass(p => !p)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                  >
+                    {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
+            {success && (
+              <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                <Mail className="w-4 h-4 text-green-500 shrink-0" />
+                <p className="text-xs text-green-700 dark:text-green-300 font-medium">{success}</p>
+              </div>
+            )}
 
             <div className="flex gap-2 pt-2">
               <button
@@ -155,13 +176,18 @@ function UserModal({ user, onClose, onSaved }) {
               </button>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !!success}
                 className="flex-1 h-10 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
-                  isEdit ? 'Salvar' : 'Criar Usuário'
+                  isEdit ? 'Salvar' : (
+                    <>
+                      <Mail className="w-3.5 h-3.5" />
+                      Enviar Convite
+                    </>
+                  )
                 )}
               </button>
             </div>
@@ -277,8 +303,8 @@ export default function UsuariosPage() {
             onClick={() => setModal({})}
             className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm transition-all"
           >
-            <UserPlus className="w-3.5 h-3.5" />
-            Novo Usuário
+            <Mail className="w-3.5 h-3.5" />
+            Convidar Usuário
           </button>
         </div>
       </div>

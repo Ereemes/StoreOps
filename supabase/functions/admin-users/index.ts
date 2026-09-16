@@ -58,21 +58,14 @@ Deno.serve(async (req) => {
 
     if (req.method === 'POST') {
       const body = await req.json()
-      const { email, password, nome, cargo } = body
+      const { email, nome, cargo } = body
 
-      if (!email || !password) {
-        return json({ error: 'E-mail e senha são obrigatórios.' }, 400)
+      if (!email) {
+        return json({ error: 'E-mail é obrigatório.' }, 400)
       }
 
-      if (password.length < 6) {
-        return json({ error: 'Senha deve ter pelo menos 6 caracteres.' }, 400)
-      }
-
-      const { data, error } = await supabaseAdmin.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
-        user_metadata: { nome: nome || '', cargo: cargo || 'Operador' },
+      const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+        data: { nome: nome || '', cargo: cargo || 'Operador' },
       })
 
       if (error) {
@@ -89,6 +82,7 @@ Deno.serve(async (req) => {
           nome: data.user.user_metadata?.nome || '',
           cargo: data.user.user_metadata?.cargo || '',
         },
+        invited: true,
       }, 201)
     }
 
